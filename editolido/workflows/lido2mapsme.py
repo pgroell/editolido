@@ -52,4 +52,3 @@ workflow.set_output(kml.render(
 	greatcircle_color=params['Couleur Ortho'],
 	route_color=params['Couleur Route']
 ))
-print workflow.output
