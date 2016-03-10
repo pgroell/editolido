@@ -25,5 +25,5 @@ class Workflow(object):
 			action_in = f.read()
 		return action_in
 
-	def set_output(self, value):
+	def set_output(self, value):  # pragma: no cover
 		self.output = value

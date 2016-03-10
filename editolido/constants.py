@@ -12,4 +12,3 @@ PINS = ('#placemark-pink', '#placemark-yellow', '#placemark-red',
 
 NAT_POSITION_ENTRY = 0
 NAT_POSITION_EXIT = 1
-
