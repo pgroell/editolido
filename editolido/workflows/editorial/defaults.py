@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from editolido.workflows import PIN_PINK, PIN_YELLOW, NAT_POSITION_ENTRY
+from editolido.constants import PIN_PINK, PIN_YELLOW, NAT_POSITION_ENTRY
 
 params = {
 	'Point Route': PIN_PINK,

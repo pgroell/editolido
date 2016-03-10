@@ -3,7 +3,8 @@ from __future__ import unicode_literals
 
 import os
 from collections import OrderedDict
-from editolido.workflows import PINS
+
+from editolido.constants import PINS
 
 
 class KMLGenerator(object):
