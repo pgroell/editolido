@@ -88,7 +88,10 @@ class GeoPoint(object):
 		:param description: optional description
 		:param normalizer: function to use to get a LatLng from value
 		"""
-		self.latlng = normalizer(value) if normalizer else value
+		if isinstance(value, GeoPoint):
+			self.latlng = value.latlng
+		else:
+			self.latlng = normalizer(value) if normalizer else value
 		assert isinstance(self.latlng, LatLng)
 		self.name = name
 		self.description = description

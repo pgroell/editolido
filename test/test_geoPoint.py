@@ -94,3 +94,11 @@ class TestGeoPoint(TestCase):
 		self.assertEqual(
 			"%s" % GeoPoint((10, 20), name="WPT"),
 			'GeoPoint(WPT(10.000000, 20.000000))')
+
+	def test_init_value_is_geopoint(self):
+		geopoint1 = GeoPoint((30, 13))
+		geopoint2 = GeoPoint(geopoint1, name='P2', description='D2')
+		self.assertEqual(geopoint1, geopoint2)
+		self.assertEqual(geopoint2.name, 'P2')
+		self.assertEqual(geopoint2.description, 'D2')
+
