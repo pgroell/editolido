@@ -28,8 +28,8 @@ def lido2mapsme(action_in, params):
 				kml.add_point('rnat', p, style=params['Repère NAT'])
 
 	if params['Couleur Ortho']:
-		greatcircle = Route((route[0], route[-1]),
-		                    name="Orthodromie %s" % route_name).split(300)
+		greatcircle = Route((route[0], route[-1])).split(300)
+		greatcircle.name = "Ortho %s" % route_name
 		kml.add_line('greatcircle', greatcircle)
 
 	if params['Couleur Route']:
