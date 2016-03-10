@@ -31,6 +31,9 @@ class TestKMLGenerator(TestCase):
 		args = {'style': 0}
 		fn('folder', args)
 		self.assertEqual(args['style'], '#placemark-pink')
+		args = {'style': '0'}
+		fn('folder', args)
+		self.assertEqual(args['style'], '#placemark-pink')
 
 	def test_add_line(self):
 		kml = KMLGenerator(line_template="{name} {color}")

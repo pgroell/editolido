@@ -49,8 +49,13 @@ class KMLGenerator(object):
 		style = kwargs.get('style', None)
 		if style is None:
 			kwargs['style'] = '#' + folder
-		elif isinstance(style, int):
-			kwargs['style'] = PINS[style]
+		else:
+			try:
+				style=int(style)
+			except ValueError:
+				pass
+			else:
+				kwargs['style'] = PINS[style]
 
 	def add_line(self, folder, route, **kwargs):
 		"""
