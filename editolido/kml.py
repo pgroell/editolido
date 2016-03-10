@@ -1,14 +1,32 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
+import os
 from collections import OrderedDict
-from editolido.workflows import PLACEMARKS
+from editolido.workflows import PINS
 
 
 class KMLGenerator(object):
-	def __init__(self, template=None, point_template=None, line_template=None):
+	def __init__(self, template=None, point_template=None, line_template=None,
+	             folder_template=None):
+		datadir = os.path.join(
+			os.path.dirname(os.path.abspath(__file__)), 'data')
 		self.template = template
+		if template is None:
+			with open(os.path.join(datadir, 'mapsme_template.kml')) as f:
+				self.template = f.read()
 		self.point_template = point_template
+		if point_template is None:
+			with open(os.path.join(datadir, 'mapsme_point_tpl.kml')) as f:
+				self.point_template = f.read()
 		self.line_template = line_template
+		if line_template is None:
+			with open(os.path.join(datadir, 'mapsme_line_tpl.kml')) as f:
+				self.line_template = f.read()
+		self.folder_template = folder_template
+		if folder_template is None:
+			with open(os.path.join(datadir, 'mapsme_folder_tpl.kml')) as f:
+				self.folder_template = f.read()
 		self.folders = OrderedDict()
 
 	def add_folder(self, name):
@@ -30,8 +48,8 @@ class KMLGenerator(object):
 		style = kwargs.get('style', None)
 		if style is None:
 			kwargs['style'] = '#' + folder
-		elif style and isinstance(style, int):
-			kwargs['style'] = PLACEMARKS[style]
+		elif isinstance(style, int):
+			kwargs['style'] = PINS[style]
 
 	def add_line(self, folder, route, **kwargs):
 		"""
@@ -66,8 +84,11 @@ class KMLGenerator(object):
 		self.folders[folder].append(
 			geopoint.as_kml(self.point_template, **kwargs))
 
-	def render(self):
-		pass  # TODO
+	def render(self, **kwargs):
+		return self.template.format(
+			folders=self.render_folders(),
+			**kwargs
+		)
 
 	def render_folder(self, folder):
 		"""
@@ -75,7 +96,11 @@ class KMLGenerator(object):
 		:param folder:
 		:return: str
 		"""
-		return '\n'.join(self.folders[folder])
+		return self.folder_template.format(
+			name=folder,
+			open=1,
+			content='\n'.join(self.folders[folder]),
+		)
 
 	def render_folders(self):
 		"""

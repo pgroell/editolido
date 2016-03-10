@@ -21,7 +21,7 @@ class Workflow(object):
 			os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 		datadir = os.path.join(
 			os.path.join(os.path.dirname(module_dir), 'test'), 'data')
-		with open(datadir + self.input_filename, 'r') as f:
+		with open(os.path.join(datadir, self.input_filename), 'r') as f:
 			action_in = f.read()
 		return action_in
 

@@ -1,0 +1,5 @@
+<Folder>
+    <name>{name}</name>
+    <open>{open}</open>
+    {content}
+</Folder>

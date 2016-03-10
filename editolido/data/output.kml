@@ -1,0 +1,506 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<kml xmlns='http://www.opengis.net/kml/2.2'>
+	<Document>
+		<name>AF009 KJFK-LFPG 27Mar2015 05:45z OFP 9/0/1</name>
+		<Style id='rnat'>
+			<LineStyle>
+				<color>60DA25A8</color>
+				<width>1</width>
+			</LineStyle>
+		</Style>
+		<Style id='rmain'>
+			<LineStyle>
+				<color>FFDA25A8</color>
+				<width>3</width>
+			</LineStyle>
+		</Style>
+		<Style id='greatcircle'>
+			<LineStyle>
+			    <color>5F1478FF</color>
+			    <width>3</width>
+            </LineStyle>
+		</Style>
+        <Folder>
+    <name>greatcircle</name>
+    <open>1</open>
+    <Placemark>
+	<name></name>
+	<styleUrl>#greatcircle</styleUrl>
+	<description></description>
+	<LineString>
+		<tessellate>1</tessellate>
+		<coordinates>-73.778333,40.640000 -68.241717,43.483935 -62.188032,46.035330 -55.591014,48.237696 -48.458940,50.030945 -40.849430,51.356242 -32.878414,52.163075 -24.715697,52.417265 -16.563235,52.107454 -8.621199,51.247448 -1.054753,49.873377 2.548333,49.010000</coordinates>
+	</LineString>
+</Placemark>
+
+</Folder>
+
+<Folder>
+    <name>ogimet</name>
+    <open>1</open>
+
+</Folder>
+
+<Folder>
+    <name>rnat</name>
+    <open>1</open>
+    <Placemark>
+	<name>NAT A</name>
+	<styleUrl>#rnat</styleUrl>
+	<description>RESNO 56N020W 57N030W 58N040W 58N050W CUDDY   LVLS WB 310 320 330 340 350 360 370 380 390   LVLS EB NIL   EUR RTS WEST NIL   NAR NIL</description>
+	<LineString>
+		<tessellate>1</tessellate>
+		<coordinates>-20.000000,56.000000 -30.000000,57.000000 -40.000000,58.000000 -50.000000,58.000000</coordinates>
+	</LineString>
+</Placemark>
+
+<Placemark>
+	<name>NAT A</name>
+	<styleUrl>placemark-yellow</styleUrl>
+	<description>RESNO 56N020W 57N030W 58N040W 58N050W CUDDY   LVLS WB 310 320 330 340 350 360 370 380 390   LVLS EB NIL   EUR RTS WEST NIL   NAR NIL</description>
+	<Point>
+		<coordinates>-20.000000,56.000000</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>NAT B</name>
+	<styleUrl>#rnat</styleUrl>
+	<description>DOGAL 55N020W 56N030W 57N040W 57N050W HOIST   LVLS WB 310 320 330 340 350 360 370 380 390   LVLS EB NIL   EUR RTS WEST NIL   NAR NIL</description>
+	<LineString>
+		<tessellate>1</tessellate>
+		<coordinates>-20.000000,55.000000 -30.000000,56.000000 -40.000000,57.000000 -50.000000,57.000000</coordinates>
+	</LineString>
+</Placemark>
+
+<Placemark>
+	<name>NAT B</name>
+	<styleUrl>placemark-yellow</styleUrl>
+	<description>DOGAL 55N020W 56N030W 57N040W 57N050W HOIST   LVLS WB 310 320 330 340 350 360 370 380 390   LVLS EB NIL   EUR RTS WEST NIL   NAR NIL</description>
+	<Point>
+		<coordinates>-20.000000,55.000000</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>NAT C</name>
+	<styleUrl>#rnat</styleUrl>
+	<description>MALOT 54N020W 55N030W 56N040W 56N050W JANJO   LVLS WB 310 320 330 340 350 360 370 380 390   LVLS EB NIL   EUR RTS WEST NIL   NAR NIL</description>
+	<LineString>
+		<tessellate>1</tessellate>
+		<coordinates>-20.000000,54.000000 -30.000000,55.000000 -40.000000,56.000000 -50.000000,56.000000</coordinates>
+	</LineString>
+</Placemark>
+
+<Placemark>
+	<name>NAT C</name>
+	<styleUrl>placemark-yellow</styleUrl>
+	<description>MALOT 54N020W 55N030W 56N040W 56N050W JANJO   LVLS WB 310 320 330 340 350 360 370 380 390   LVLS EB NIL   EUR RTS WEST NIL   NAR NIL</description>
+	<Point>
+		<coordinates>-20.000000,54.000000</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>NAT D</name>
+	<styleUrl>#rnat</styleUrl>
+	<description>SOMAX 50N020W 49N030W 48N040W 45N050W VODOR   LVLS WB 310 320 330 350 360 370 390   LVLS EB NIL   EUR RTS WEST NIL   NAR NIL</description>
+	<LineString>
+		<tessellate>1</tessellate>
+		<coordinates>-20.000000,50.000000 -30.000000,49.000000 -40.000000,48.000000 -50.000000,45.000000</coordinates>
+	</LineString>
+</Placemark>
+
+<Placemark>
+	<name>NAT D</name>
+	<styleUrl>placemark-yellow</styleUrl>
+	<description>SOMAX 50N020W 49N030W 48N040W 45N050W VODOR   LVLS WB 310 320 330 350 360 370 390   LVLS EB NIL   EUR RTS WEST NIL   NAR NIL</description>
+	<Point>
+		<coordinates>-20.000000,50.000000</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>NAT E</name>
+	<styleUrl>#rnat</styleUrl>
+	<description>BEDRA 49N020W 48N030W 47N040W 44N050W BOBTU JAROM   LVLS WB 310 320 330 350 360 370 390   LVLS EB NIL   EUR RTS WEST NIL   NAR NIL</description>
+	<LineString>
+		<tessellate>1</tessellate>
+		<coordinates>-20.000000,49.000000 -30.000000,48.000000 -40.000000,47.000000 -50.000000,44.000000</coordinates>
+	</LineString>
+</Placemark>
+
+<Placemark>
+	<name>NAT E</name>
+	<styleUrl>placemark-yellow</styleUrl>
+	<description>BEDRA 49N020W 48N030W 47N040W 44N050W BOBTU JAROM   LVLS WB 310 320 330 350 360 370 390   LVLS EB NIL   EUR RTS WEST NIL   NAR NIL</description>
+	<Point>
+		<coordinates>-20.000000,49.000000</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>NAT F</name>
+	<styleUrl>#rnat</styleUrl>
+	<description>OMOKO 48N015W 48N020W 47N030W 46N040W 43N050W JEBBY CARAC   LVLS WB 310 320 330 350 360 370 390   LVLS EB NIL   EUR RTS WEST NIL   NAR NIL</description>
+	<LineString>
+		<tessellate>1</tessellate>
+		<coordinates>-15.000000,48.000000 -20.000000,48.000000 -30.000000,47.000000 -40.000000,46.000000 -50.000000,43.000000</coordinates>
+	</LineString>
+</Placemark>
+
+<Placemark>
+	<name>NAT F</name>
+	<styleUrl>placemark-yellow</styleUrl>
+	<description>OMOKO 48N015W 48N020W 47N030W 46N040W 43N050W JEBBY CARAC   LVLS WB 310 320 330 350 360 370 390   LVLS EB NIL   EUR RTS WEST NIL   NAR NIL</description>
+	<Point>
+		<coordinates>-15.000000,48.000000</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>NAT G</name>
+	<styleUrl>#rnat</styleUrl>
+	<description>ETIKI 47N015W 47N020W 46N030W 45N040W 42N050W 42N060W DOVEY   LVLS WB 310 320 330 350 360 370 390   LVLS EB NIL   EUR RTS WEST VIA REGHI   NAR NIL</description>
+	<LineString>
+		<tessellate>1</tessellate>
+		<coordinates>-15.000000,47.000000 -20.000000,47.000000 -30.000000,46.000000 -40.000000,45.000000 -50.000000,42.000000 -60.000000,42.000000</coordinates>
+	</LineString>
+</Placemark>
+
+<Placemark>
+	<name>NAT G</name>
+	<styleUrl>placemark-yellow</styleUrl>
+	<description>ETIKI 47N015W 47N020W 46N030W 45N040W 42N050W 42N060W DOVEY   LVLS WB 310 320 330 350 360 370 390   LVLS EB NIL   EUR RTS WEST VIA REGHI   NAR NIL</description>
+	<Point>
+		<coordinates>-15.000000,47.000000</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>NAT H</name>
+	<styleUrl>#rnat</styleUrl>
+	<description>43N040W 41N050W 41N060W JOBOC   LVLS WB 330 350 370 390   LVLS EB NIL   EUR RTS WEST NIL   NAR NIL</description>
+	<LineString>
+		<tessellate>1</tessellate>
+		<coordinates>-40.000000,43.000000 -50.000000,41.000000 -60.000000,41.000000</coordinates>
+	</LineString>
+</Placemark>
+
+<Placemark>
+	<name>NAT H</name>
+	<styleUrl>placemark-yellow</styleUrl>
+	<description>43N040W 41N050W 41N060W JOBOC   LVLS WB 330 350 370 390   LVLS EB NIL   EUR RTS WEST NIL   NAR NIL</description>
+	<Point>
+		<coordinates>-40.000000,43.000000</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>NAT J</name>
+	<styleUrl>#rnat</styleUrl>
+	<description>42N040W 38N050W 33N060W NUMBR   LVLS WB 320 340 360 380   LVLS EB NIL   EUR RTS WEST NIL   NAR NIL </description>
+	<LineString>
+		<tessellate>1</tessellate>
+		<coordinates>-40.000000,42.000000 -50.000000,38.000000 -60.000000,33.000000</coordinates>
+	</LineString>
+</Placemark>
+
+<Placemark>
+	<name>NAT J</name>
+	<styleUrl>placemark-yellow</styleUrl>
+	<description>42N040W 38N050W 33N060W NUMBR   LVLS WB 320 340 360 380   LVLS EB NIL   EUR RTS WEST NIL   NAR NIL </description>
+	<Point>
+		<coordinates>-40.000000,42.000000</coordinates>
+	</Point>
+</Placemark>
+
+</Folder>
+
+<Folder>
+    <name>rmain</name>
+    <open>1</open>
+    <Placemark>
+	<name>KJFK-LFPG</name>
+	<styleUrl>#rmain</styleUrl>
+	<description>AF009 KJFK-LFPG 27Mar2015 05:45z OFP 9/0/1</description>
+	<LineString>
+		<tessellate>1</tessellate>
+		<coordinates>-73.778333,40.640000 -73.313333,41.480000 -73.270000,42.581667 -67.156667,44.901667 -52.000000,50.500000 -50.000000,51.000000 -40.000000,53.000000 -30.000000,55.000000 -20.000000,55.000000 -15.000000,55.000000 -14.000000,55.000000 -5.680000,52.241667 -5.040000,51.995000 -3.283333,51.610000 -2.061667,51.443333 -1.558333,51.371667 -1.171667,51.313333 -1.045000,51.253333 -0.625000,51.053333 0.121667,50.760000 0.350000,50.583333 0.491667,50.471667 0.641667,50.351667 0.848333,50.186667 1.008333,50.058333 1.570000,49.300000 1.756667,49.291667 2.388333,49.261667 2.515000,49.255000 2.715000,49.231667 2.548333,49.010000</coordinates>
+	</LineString>
+</Placemark>
+
+<Placemark>
+	<name>KJFK</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>-73.778333,40.640000</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>GREKI</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>-73.313333,41.480000</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>MARTN</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>-73.270000,42.581667</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>EBONY</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>-67.156667,44.901667</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>ALLRY</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>-52.000000,50.500000</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name></name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>-50.000000,51.000000</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name></name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>-40.000000,53.000000</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name></name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>-30.000000,55.000000</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>RESNO</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>-15.000000,55.000000</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>NETKI</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>-14.000000,55.000000</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>BAKUR</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>-5.680000,52.241667</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>STU</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>-5.040000,51.995000</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>NUMPO</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>-3.283333,51.610000</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>OKESI</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>-2.061667,51.443333</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>BEDEK</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>-1.558333,51.371667</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>NIGIT</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>-1.171667,51.313333</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>VAPID</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>-1.045000,51.253333</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>MID</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>-0.625000,51.053333</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>SFD</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>0.121667,50.760000</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>WAFFU</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>0.350000,50.583333</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>HARDY</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>0.491667,50.471667</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>XIDIL</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>0.641667,50.351667</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>PETAX</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>0.848333,50.186667</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>BIBAX</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>1.008333,50.058333</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>KOLIV</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>1.570000,49.300000</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>MOPAR</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>1.756667,49.291667</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>PG534</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>2.388333,49.261667</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>CRL</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>2.515000,49.255000</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>PG536</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>2.715000,49.231667</coordinates>
+	</Point>
+</Placemark>
+
+<Placemark>
+	<name>LFPG</name>
+	<styleUrl>0</styleUrl>
+	<description></description>
+	<Point>
+		<coordinates>2.548333,49.010000</coordinates>
+	</Point>
+</Placemark>
+
+</Folder>
+
+	</Document>
+</kml>

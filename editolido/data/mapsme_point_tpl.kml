@@ -1,0 +1,8 @@
+<Placemark>
+	<name>{name}</name>
+	<styleUrl>{style}</styleUrl>
+	<description>{description}</description>
+	<Point>
+		<coordinates>{coordinates}</coordinates>
+	</Point>
+</Placemark>
