@@ -108,37 +108,3 @@ class Route(object):
 
 		size = converter(max_length) if converter else max_length
 		return self.__class__(splitted_route_generator(size, preserve))
-
-	def as_kml_line(self, template, **kwargs):
-		"""
-		Render name, description and coordinates of the route
-		in a suitable format for .kml LineString
-		:param template: str the template file to use
-		:param kwargs: optional arguments passed to the template
-		:return: str
-		"""
-		coordinates = []
-		for p in self.route:
-			coordinates.append(
-				"{lng:.6f},{lat:.6f}".format(lat=p.latitude, lng=p.longitude))
-		variables = dict(
-			name=self.name or '',
-			description=self.description or '')
-		variables.update(kwargs)
-		return template.format(
-			coordinates=' '.join(coordinates),
-			**variables
-		)
-
-	def as_kml_points(self, template, excluded=None, **kwargs):
-		"""
-		Render name, description and coordinates of the route
-		in a suitable format for .kml Points
-		:param template: str the template file to use
-		:param excluded: list of GeoPoints to exclude from output
-		:param kwargs: optional arguments passed to the template
-		:return: str
-		"""
-		excluded = excluded or []
-		return "\n".join([p.as_kml(template, **kwargs)
-		                  for p in self.route if p not in excluded])

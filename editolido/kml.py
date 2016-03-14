@@ -51,7 +51,7 @@ class KMLGenerator(object):
 			kwargs['style'] = '#' + folder
 		else:
 			try:
-				style=int(style)
+				style = int(style)
 			except ValueError:
 				pass
 			else:
@@ -65,19 +65,31 @@ class KMLGenerator(object):
 		:param kwargs: optional args passed to the renderer
 		"""
 		self._update_kwargs(folder, kwargs)
-		self.folders[folder].append(
-			route.as_kml_line(self.line_template, **kwargs))
+		coordinates = []
+		for p in route:
+			coordinates.append(
+			    "{lng:.6f},{lat:.6f}".format(lat=p.latitude, lng=p.longitude))
+		variables = dict(
+		    name=route.name or '',
+		    description=route.description or '')
+		variables.update(kwargs)
+		self.folders[folder].append(self.line_template.format(
+		    coordinates=' '.join(coordinates),
+		    **variables))
 
-	def add_points(self, folder, route, **kwargs):
+	def add_points(self, folder, route, excluded=None, **kwargs):
 		"""
 		Add a route as a Points in the .kml
 		:param folder: folder name
 		:param route: Route
+		:param excluded: list of GeoPoint to exclude from rendering
 		:param kwargs: optional args passed to the renderer
 		"""
 		self._update_kwargs(folder, kwargs)
-		self.folders[folder].append(
-			route.as_kml_points(self.point_template, **kwargs))
+		excluded = excluded or []
+		for geopoint in route:
+			if geopoint not in excluded:
+				self.add_point(folder, geopoint, **kwargs)
 
 	def add_point(self, folder, geopoint, **kwargs):
 		"""
@@ -87,8 +99,15 @@ class KMLGenerator(object):
 		:param kwargs: optional args passed to the renderer
 		"""
 		self._update_kwargs(folder, kwargs)
-		self.folders[folder].append(
-			geopoint.as_kml(self.point_template, **kwargs))
+		coordinates = "{lng:.6f},{lat:.6f}".format(
+		    lat=geopoint.latitude, lng=geopoint.longitude)
+		variables = dict(
+		    name=geopoint.name or '',
+		    description=geopoint.description or '')
+		variables.update(kwargs)
+		self.folders[folder].append(self.point_template.format(
+		    coordinates=coordinates,
+		    **variables))
 
 	def render(self, **kwargs):
 		return self.template.format(

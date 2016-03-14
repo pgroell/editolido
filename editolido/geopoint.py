@@ -209,20 +209,3 @@ class GeoPoint(object):
 		rlat = math.atan2(z, math.sqrt(math.pow(x, 2) + math.pow(y, 2)))
 		phi = math.atan2(y, x)
 		return self.__class__((rlat, phi), normalizer=latphi2latlng)
-
-	def as_kml(self, template, **kwargs):
-		"""
-		Render name, description and coordinates in a suitable format for .kml
-		:param template: str the template file to use
-		:param kwargs: optional arguments passed to the template
-		:return: str
-		"""
-		coordinates = "{lng:.6f},{lat:.6f}".format(
-			lat=self.latitude, lng=self.longitude)
-		variables = dict(
-			name=self.name or '',
-			description=self.description or '')
-		variables.update(kwargs)
-		return template.format(
-			coordinates=coordinates,
-			**variables)

@@ -90,32 +90,6 @@ class TestRoute(TestCase):
 		p = GeoPoint((0, 46.66554361))
 		self.assertEqual(route.split(size + 100), Route([start, p, end]))
 
-	def test_as_kml_line(self):
-		start = GeoPoint((0, 0))
-		end = GeoPoint((0, 90))
-		route = Route(
-			[start, end], name="route_name", description="route_description")
-		self.assertEqual(
-			route.as_kml_line(
-				'{name}/{style}/{description}/{coordinates}',
-				style='route_style'),
-			'route_name/route_style/route_description/'
-			'0.000000,0.000000 90.000000,0.000000'
-		)
-
-	def test_as_kml_points(self):
-		start = GeoPoint((0, 0), name="P1")
-		end = GeoPoint((0, 90), name="P2", description="D2")
-		route = Route(
-			[start, end], name="route_name", description="route_description")
-		self.assertEqual(
-			route.as_kml_points(
-				'{name}/{style}/{description}/{coordinates}',
-				style='point_style'),
-			'P1/point_style//0.000000,0.000000\n'
-			'P2/point_style/D2/90.000000,0.000000'
-		)
-
 	def test_get_item(self):
 		route = Route([GeoPoint((0, 0)), GeoPoint((0, 90))])
 		self.assertEqual(route[0], GeoPoint((0, 0)))
