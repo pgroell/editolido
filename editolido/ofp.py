@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import itertools
 import re
 import sys
 from datetime import datetime, timedelta, tzinfo
+from editolido.geolite import latlng2dm
 from editolido.route import Route
 from editolido.geopoint import GeoPoint, dm_normalizer, arinc_normalizer
 
@@ -32,9 +34,17 @@ class OFP(object):
 		self.text = text
 		self._infos = None
 
-	def get_between(self, start, end, end_is_optional=True, inclusive=False):
+	@staticmethod
+	def log_error(message):
+		print message
+		print "retry or send OFP to Yammer's group Maps.me"
+		print "or https://github.com/flyingeek/editolido/issues"
+
+	@staticmethod
+	def extract(text, start, end, end_is_optional=True, inclusive=False):
 		"""
-		Get text between start and end marks
+		Extract in text between start and end marks
+		:param text: unicode
 		:param start: unicode or None
 		:param end: unicode or None
 		:param end_is_optional: if end is missing, captures till EOF
@@ -43,13 +53,13 @@ class OFP(object):
 		"""
 		if start:
 			try:
-				s = self.text.split(start, 1)[1]
+				s = text.split(start, 1)[1]
 			except IndexError:
 				raise LookupError
 			if inclusive:
 				s = start + s
 		else:
-			s = self.text
+			s = text
 
 		if not end:
 			return s
@@ -62,6 +72,20 @@ class OFP(object):
 		if inclusive:
 			s += end
 		return s
+
+	def get_between(self, start, end, end_is_optional=True, inclusive=False):
+		"""
+		Get text between start and end marks
+		:param start: unicode or None
+		:param end: unicode or None
+		:param end_is_optional: if end is missing, captures till EOF
+		:param inclusive: if True, captures start and end
+		:return: unicode
+		"""
+		return self.extract(
+		    self.text,
+		    start, end,
+		    end_is_optional=end_is_optional, inclusive=inclusive)
 
 	@property
 	def filename(self):
@@ -77,12 +101,11 @@ class OFP(object):
 
 	@property
 	def wpt_coordinates(self):
+		tag = 'WPT COORDINATES'
 		try:
-			s = self.get_between('WPT COORDINATES', '----')
+			s = self.get_between(tag, '----')
 		except LookupError:
-			print "WPT COORDINATES not found"
-			print "retry or send OFP to Yammer's group Maps.me"
-			print "or https://github.com/flyingeek/editolido/issues"
+			self.log_error("%s not found" % tag)
 			sys.exit()
 		for m in re.finditer(r'(\S+|\s+)\s+([NS]\d{4}\.\d)([EW]\d{5}\.\d)', s):
 			yield GeoPoint(
@@ -90,14 +113,27 @@ class OFP(object):
 			    name=m.group(1).strip(), normalizer=dm_normalizer
 			)
 
-	@property
-	def tracks(self):
-		try:
-			s = self.get_between('TRACKSNAT', 'NOTES:', end_is_optional=True)
-		except LookupError:
-			raise StopIteration
+	def tracks_iterator(self):
+		"""
+		Tracks Iterator
+		:return: iterator of tuple (letter, full description)
+		"""
+		s = self.get_between('TRACKSNAT', 'NOTES:')
 		# split at track letter, discard first part.
 		it = iter(re.split(r'(?:\s|[^A-Z])([A-Z])\s{3}', s)[1:])
+		return itertools.izip(it, it)
+
+	@property
+	def tracks(self):
+		"""
+		Yield a route for each track found
+		Note: track points only include arinc points (no entry or exit point)
+		:return: generator
+		"""
+		try:
+			tracks = self.tracks_iterator()
+		except (LookupError, IndexError):
+			raise StopIteration
 
 		def nat_route_generator(text):
 			m = re.findall(
@@ -106,7 +142,7 @@ class OFP(object):
 			for arinc_point in m:
 				yield GeoPoint(arinc_point, normalizer=arinc_normalizer)
 
-		for letter, description in zip(it, it):
+		for letter, description in tracks:
 			yield Route(
 			    nat_route_generator(description),
 			    name="NAT %s" % letter,
@@ -114,6 +150,16 @@ class OFP(object):
 
 	@property
 	def infos(self):
+		"""
+		Dictionnary of common OFP data:
+		- flight (AF009)
+		- departure (KJFK)
+		- destination (LFPG)
+		- datetime (a python datetime for scheduled departure block time)
+		- date (OFP text date 25Apr2016)
+		- ofp (OFP number 9/0/1)
+		:return: dict
+		"""
 		if self._infos is None:
 			pattern = r'\d{4}z(?P<flight>.+)' \
 			          r'(?P<departure>\S{4})/' \
@@ -132,7 +178,108 @@ class OFP(object):
 				    MONTHS.index(s[2:5]) + 1,
 				    s[5:]
 				)
-				date_object = datetime.strptime(date_text,'%d%m%Y/%H%M'
+				date_object = datetime.strptime(date_text, '%d%m%Y/%H%M'
 				                                ).replace(tzinfo=utc)
 				self._infos['datetime'] = date_object
 		return self._infos
+
+	@property
+	def fpl(self):
+		"""
+		FPL found in OFP
+		:return: list
+		"""
+		tag = 'ATC FLIGHT PLAN'
+		try:
+			text = self.get_between(tag, 'TRACKSNAT')
+		except LookupError:
+			self.log_error("%s not found" % tag)
+			return []
+		try:
+			text = self.extract(
+			    text,
+			    '-%s' % self.infos['departure'],
+			    '-%s' % self.infos['destination'],
+			    end_is_optional=False)
+		except (LookupError, EOFError, TypeError):
+			self.log_error("incomplete Flight Plan")
+			return []
+		text = text[text.index(' ') + 1:]
+		return ([self.infos['departure']] +
+		        [s.strip() for s in text.split(' ')] +
+		        [self.infos['destination']])
+
+	@property
+	def fpl_route(self):
+		"""
+		FPL route found in OFP (fpl without any speed/FL informations)
+		:return: list
+		"""
+		return [p.split('/', 1)[0] if '/' in p else p for p in self.fpl]
+
+	@property
+	def lido_route(self):
+		"""
+		A route suitable for lido's app mPilot
+		SID/STAR/NAT are represented by geographic points
+		:return: list
+		"""
+		points = []
+		raw_points = []
+		for p in self.wpt_coordinates:
+			dm = latlng2dm(p)
+			raw_points.append(dm)
+			if re.search(r'\d+', p.name) or not p.name:
+				points.append(dm)
+			else:
+				points.append(p.name)
+
+		lido_route = []
+		inner_fpl_route = self.fpl_route[1:-1]
+		# replace points by raw_points before first common waypoint
+		for i, p in enumerate(inner_fpl_route):
+			if p in points:
+				offset = points.index(p)
+				lido_route = raw_points[1:offset] + inner_fpl_route[i:]
+				break
+
+		# replace points after last common waypoint by raw_points
+		for i, p in enumerate(reversed(lido_route)):
+			if p in points:
+				offset = points[::-1].index(p)
+				if i > 0:
+					lido_route = lido_route[0:-i]
+				lido_route += raw_points[-offset:-1]
+				break
+
+		# build a list of tracks including entry/exit points
+		# and replace known tracks (NATA, NATB...) by track_points
+		try:
+			tracks = self.tracks_iterator()
+		except (LookupError, IndexError):
+			tracks = []
+		for track in tracks:
+			letter, text = track
+			try:
+				offset = lido_route.index("NAT%s" % letter)
+			except ValueError:
+				continue
+			text = text.split('LVLS', 1)[0].strip()
+			lido_route[offset:offset + 1] = \
+			    [p for p in text.split(' ') if p][1:-1]
+			break
+
+		# replace NAR by intermediate points if any
+		# Should be correctly handheld by mPilot, but just in case...
+		# for i, p in enumerate(lido_route):
+		# 	if re.match(r'^N\d+A$', p.strip()):
+		# 		try:
+		# 			before = points.index(lido_route[i - 1])
+		# 			after = len(points) - points[::-1].index(lido_route[i + 1])
+		# 			lido_route[i:i + 1] = points[before + 1:after - 1]
+		# 		except (ValueError, IndexError):
+		# 			continue
+
+		# adds back departure and destination
+		lido_route = [self.fpl_route[0]] + lido_route + [self.fpl_route[-1]]
+		return lido_route

@@ -54,3 +54,25 @@ def dm2decimal(s):
 	degrees = Decimal(s[1:offset])
 	minutes = Decimal(s[offset:])
 	return sign * (degrees + minutes / 60)
+
+
+def latlng2dm(latlng):
+	def dm(v, pattern):
+		f, degrees = math.modf(abs(v))
+		cents, minutes = math.modf(f * 60)
+		cents = round(cents * 10)
+		if cents >= 10:
+			cents = 0
+			minutes += 1
+		return pattern.format(
+			int(degrees),
+			int(minutes),
+			int(cents)
+		)
+
+	return '{0}{1}{2}{3}'.format(
+		'N' if latlng.latitude >= 0 else 'S',
+		dm(latlng.latitude, '{0:0>2d}{1:0>2d}.{2}'),
+		'E' if latlng.longitude > 0 else 'W',
+		dm(latlng.longitude, '{0:0>3d}{1:0>2d}.{2}'),
+	)

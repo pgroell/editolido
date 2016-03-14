@@ -76,9 +76,9 @@ class TestOFP(TestCase):
 
 	def test_missing_tracks(self):
 		ofp = OFP('blabla blabla')
-		out, sys.stdout = sys.stdout, StringIO()
 		self.assertEqual(list(ofp.tracks), [])
-		sys.stdout = out
+		with self.assertRaises(LookupError):
+			ofp.tracks_iterator()
 
 	def test_tracks(self):
 		with open(DATADIR + '/KJFK-LFPG 27Mar2015 05:45z.txt', 'r') as f:
@@ -135,4 +135,89 @@ class TestOFP(TestCase):
 		self.assertEqual(
 			ofp.description,
 			"AF009 KJFK-LFPG 27Mar2015 05:45z OFP 9/0/1"
+		)
+
+	def test_fpl_lookup_error(self):
+		ofp = OFP('')
+		out, sys.stdout = sys.stdout, StringIO()
+		self.assertEqual(ofp.fpl, [])
+		sys.stdout = out
+		ofp = OFP('ATC FLIGHT PLANblabla')
+		output = StringIO()
+		out, sys.stdout = sys.stdout, output
+		self.assertEqual(ofp.fpl, [])
+		self.assertIn('incomplete Flight Plan', output.getvalue())
+		sys.stdout = out
+		output.close()
+
+	def test_fpl(self):
+		with open(DATADIR + '/KJFK-LFPG 27Mar2015 05:45z.txt', 'r') as f:
+			ofp = OFP(f.read())
+		self.assertEqual(
+			' '.join(ofp.fpl),
+			"KJFK DCT GREKI DCT MARTN DCT EBONY/M084F350 N247A ALLRY/M084F370 "
+			"DCT 51N050W 53N040W 55N030W 55N020W DCT RESNO DCT "
+			"NETKI/N0479F350 DCT BAKUR/N0463F350 UN546 STU UP2 "
+			"NIGIT UL18 SFD/N0414F250 UM605 BIBAX BIBAX7W LFPG"
+		)
+
+	def test_fpl_route(self):
+		with open(DATADIR + '/KJFK-LFPG 27Mar2015 05:45z.txt', 'r') as f:
+			ofp = OFP(f.read())
+		self.assertEqual(
+			' '.join(ofp.fpl_route),
+			"KJFK DCT GREKI DCT MARTN DCT EBONY N247A ALLRY "
+			"DCT 51N050W 53N040W 55N030W 55N020W DCT RESNO DCT "
+			"NETKI DCT BAKUR UN546 STU UP2 "
+			"NIGIT UL18 SFD UM605 BIBAX BIBAX7W LFPG"
+		)
+
+	def test_lido_route(self):
+		with open(DATADIR + '/KJFK-LFPG 27Mar2015 05:45z.txt', 'r') as f:
+			ofp = OFP(f.read())
+		self.assertEqual(
+			' '.join(ofp.lido_route),
+			'KJFK GREKI DCT MARTN DCT EBONY N247A ALLRY DCT 51N050W '
+			'53N040W 55N030W 55N020W DCT RESNO DCT NETKI DCT BAKUR UN546 '
+			'STU UP2 NIGIT UL18 SFD UM605 BIBAX N4918.0E00134.2 '
+			'N4917.5E00145.4 N4915.7E00223.3 N4915.3E00230.9 '
+			'N4913.9E00242.9 LFPG'
+		)
+
+	def test_lido_route_no_tracksnat(self):
+		with open(DATADIR + '/KJFK-LFPG 27Mar2015 05:45z.txt', 'r') as f:
+			ofp = OFP(f.read())
+		ofp.text = ofp.text.replace('TRACKSNAT', 'TRACKSNA*')
+		self.assertEqual(
+			' '.join(ofp.lido_route),
+			'KJFK GREKI DCT MARTN DCT EBONY N247A ALLRY DCT 51N050W '
+			'53N040W 55N030W 55N020W DCT RESNO DCT NETKI DCT BAKUR UN546 '
+			'STU UP2 NIGIT UL18 SFD UM605 BIBAX N4918.0E00134.2 '
+			'N4917.5E00145.4 N4915.7E00223.3 N4915.3E00230.9 '
+			'N4913.9E00242.9 LFPG'
+		)
+
+	def test_lido_route_with_naty(self):
+		with open(DATADIR + '/AF007_KJFK-LFPG_13Mar2016_00:15z_OFP_6_0_1.txt',
+		          'r') as f:
+			ofp = OFP(f.read())
+		self.assertEqual(
+			' '.join(ofp.lido_route),
+			'KJFK HAPIE DCT YAHOO DCT DOVEY 42N060W 43N050W 46N040W 49N030W '
+			'49N020W BEDRA NERTU DCT TAKAS UN490 MOSIS UN491 BETUV UY111 '
+			'JSY UY111 INGOR UM25 LUKIP N4918.0E00134.2 '
+			'N4917.5E00145.4 N4910.2E00150.4 LFPG'
+		)
+
+	def test_lido_route_with_naty_no_tracksnat(self):
+		with open(DATADIR + '/AF007_KJFK-LFPG_13Mar2016_00:15z_OFP_6_0_1.txt',
+		          'r') as f:
+			ofp = OFP(f.read())
+		ofp.text = ofp.text.replace('TRACKSNAT', 'TRACKSNA*')
+		self.assertEqual(
+			' '.join(ofp.lido_route),
+			'KJFK HAPIE DCT YAHOO DCT DOVEY NATY NERTU DCT TAKAS UN490 '
+			'MOSIS UN491 BETUV UY111 '
+			'JSY UY111 INGOR UM25 LUKIP N4918.0E00134.2 '
+			'N4917.5E00145.4 N4910.2E00150.4 LFPG'
 		)

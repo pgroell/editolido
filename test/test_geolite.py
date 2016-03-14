@@ -30,11 +30,11 @@ class TestGeolite(TestCase):
 	def test_rad_to_nm(self):
 		from editolido.geolite import rad_to_nm, R, NM
 		self.assertAlmostEqual(rad_to_nm(1), R / NM)
-		self.assertAlmostEqual(rad_to_nm(1./3600), 0.95557355)
+		self.assertAlmostEqual(rad_to_nm(1. / 3600), 0.95557355)
 
 	def test_nm_to_rad(self):
 		from editolido.geolite import nm_to_rad, R, NM
-		self.assertAlmostEqual(nm_to_rad(0.95557355), 1./3600)
+		self.assertAlmostEqual(nm_to_rad(0.95557355), 1. / 3600)
 		self.assertAlmostEqual(nm_to_rad(R / NM), 1)
 
 	def test_rad_to_km(self):
@@ -90,3 +90,26 @@ class TestGeolite(TestCase):
 		self.assertEqual(
 			dm_normalizer('N5530.3E01030.3'),
 			LatLng(Decimal('55.505'), Decimal('10.505')))
+
+	def test_latlng2dm(self):
+		from editolido.geolite import latlng2dm, LatLng
+		self.assertEqual(
+			latlng2dm(LatLng(0, 0)),
+			'N0000.0W00000.0'
+		)
+		self.assertEqual(
+			latlng2dm(LatLng(45, 0)),
+			'N4500.0W00000.0'
+		)
+		self.assertEqual(
+			latlng2dm(LatLng(-45, 1)),
+			'S4500.0E00100.0'
+		)
+		self.assertEqual(
+			latlng2dm(LatLng(-45.508333, 1.3)),
+			'S4530.5E00118.0'
+		)
+		self.assertEqual(
+			latlng2dm(LatLng(45.55, 1.55)),
+			'N4533.0E00133.0'
+		)
