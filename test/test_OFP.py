@@ -28,15 +28,11 @@ class TestOFP(TestCase):
 		self.assertEqual(s[15:19], 'KJFK')
 		self.assertEqual(s[-25:-21], 'LFPG')
 
-		out, sys.stdout = sys.stdout, StringIO()
-		with self.assertRaises(EOFError):
+		with self.assertRaises(LookupError):
 			ofp.get_between('####', '----')
-		sys.stdout = out
 
-		out, sys.stdout = sys.stdout, StringIO()
 		with self.assertRaises(EOFError):
 			ofp.get_between('WPT COORDINATES', '****', end_is_optional=False)
-		sys.stdout = out
 
 		s = ofp.get_between('WPT COORDINATES', '****')
 		self.assertTrue(s.endswith('STANDARD\n'))

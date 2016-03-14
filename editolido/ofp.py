@@ -45,10 +45,7 @@ class OFP(object):
 			try:
 				s = self.text.split(start, 1)[1]
 			except IndexError:
-				print "%s not found" % start
-				print "retry or send OFP to Yammer's group Maps.me"
-				print "or https://github.com/flyingeek/editolido/issues"
-				raise EOFError
+				raise LookupError
 			if inclusive:
 				s = start + s
 		else:
@@ -61,9 +58,6 @@ class OFP(object):
 			s, _ = s.split(end, 1)
 		except ValueError:
 			if not end_is_optional:
-				print "%s not found" % end
-				print "retry or send OFP to Yammer's group Maps.me"
-				print "or https://github.com/flyingeek/editolido/issues"
 				raise EOFError
 		if inclusive:
 			s += end
@@ -85,7 +79,10 @@ class OFP(object):
 	def wpt_coordinates(self):
 		try:
 			s = self.get_between('WPT COORDINATES', '----')
-		except EOFError:
+		except LookupError:
+			print "WPT COORDINATES not found"
+			print "retry or send OFP to Yammer's group Maps.me"
+			print "or https://github.com/flyingeek/editolido/issues"
 			sys.exit()
 		for m in re.finditer(r'(\S+|\s+)\s+([NS]\d{4}\.\d)([EW]\d{5}\.\d)', s):
 			yield GeoPoint(
@@ -97,7 +94,7 @@ class OFP(object):
 	def tracks(self):
 		try:
 			s = self.get_between('TRACKSNAT', 'NOTES:', end_is_optional=True)
-		except EOFError:
+		except LookupError:
 			raise StopIteration
 		# split at track letter, discard first part.
 		it = iter(re.split(r'(?:\s|[^A-Z])([A-Z])\s{3}', s)[1:])
