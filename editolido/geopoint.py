@@ -3,7 +3,8 @@ from __future__ import unicode_literals
 
 import math
 from decimal import Decimal
-from editolido.geolite import LatLng, LatPhi, latphi2latlng, dm2decimal
+from editolido.geolite import LatLng, LatPhi, latphi2latlng, dm2decimal, \
+	latlng2dm
 
 
 # Normalizers
@@ -71,7 +72,7 @@ class GeoPoint(object):
 	"""
 	The GeoPoint class is used to store geographical points
 	"""
-	__slots__ = ('latlng', 'name', 'description', '_latphi')
+	__slots__ = ('latlng', 'name', 'description', '_latphi', '_dm')
 
 	def __init__(
 		self, value, name=None, description=None,
@@ -95,7 +96,7 @@ class GeoPoint(object):
 		assert isinstance(self.latlng, LatLng)
 		self.name = name
 		self.description = description
-		self._latphi = None
+		self._latphi = self._dm = None
 
 	@property
 	def latitude(self):
@@ -114,6 +115,16 @@ class GeoPoint(object):
 		if self._latphi is None:
 			self._latphi = LatPhi(*map(math.radians, self.latlng))
 		return self._latphi
+
+	@property
+	def dm(self):
+		"""
+		Degrees Minutes representation of Point
+		:return: unicode
+		"""
+		if self._dm is None:
+			self._dm = latlng2dm(self.latlng)
+		return self._dm
 
 	def __eq__(self, other):
 		"""

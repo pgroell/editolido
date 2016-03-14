@@ -197,6 +197,22 @@ class TestOFP(TestCase):
 			'N4913.9E00242.9 LFPG'
 		)
 
+	def test_lido_route_no_fpl(self):
+		with open(DATADIR + '/KJFK-LFPG 27Mar2015 05:45z.txt', 'r') as f:
+			ofp = OFP(f.read())
+		ofp.text = ofp.text.replace('ATC FLIGHT PLAN', 'ATC*FLIGHT*PLAN')
+		output = StringIO()
+		out, sys.stdout = sys.stdout, output
+		self.assertEqual(
+			' '.join(ofp.lido_route),
+			'KJFK GREKI MARTN EBONY ALLRY N5100.0W05000.0 N5300.0W04000.0 '
+			'N5500.0W03000.0 N5500.0W02000.0 RESNO NETKI BAKUR STU NUMPO '
+			'OKESI BEDEK NIGIT VAPID MID SFD WAFFU HARDY XIDIL PETAX BIBAX '
+			'KOLIV MOPAR N4915.7E00223.3 CRL N4913.9E00242.9 LFPG'
+		)
+		sys.stdout = out
+		output.close()
+
 	def test_lido_route_with_naty(self):
 		with open(DATADIR + '/AF007_KJFK-LFPG_13Mar2016_00:15z_OFP_6_0_1.txt',
 		          'r') as f:
@@ -208,6 +224,23 @@ class TestOFP(TestCase):
 			'JSY UY111 INGOR UM25 LUKIP N4918.0E00134.2 '
 			'N4917.5E00145.4 N4910.2E00150.4 LFPG'
 		)
+
+	def test_lido_route_with_naty_no_fpl(self):
+		with open(DATADIR + '/AF007_KJFK-LFPG_13Mar2016_00:15z_OFP_6_0_1.txt',
+		          'r') as f:
+			ofp = OFP(f.read())
+		ofp.text = ofp.text.replace('ATC FLIGHT PLAN', 'ATC*FLIGHT*PLAN')
+		output = StringIO()
+		out, sys.stdout = sys.stdout, output
+		self.assertEqual(
+			' '.join(ofp.lido_route),
+			'KJFK HAPIE YAHOO DOVEY N4200.0W06000.0 N4300.0W05000.0 '
+			'N4600.0W04000.0 N4900.0W03000.0 N4900.0W02000.0 BEDRA NERTU '
+			'TAKAS ALUTA MOSIS DEKOR NERLA RUSIB BETUV JSY INGOR LUKIP '
+			'KOLIV MOPAR N4910.2E00150.4 LFPG'
+		)
+		sys.stdout = out
+		output.close()
 
 	def test_lido_route_with_naty_no_tracksnat(self):
 		with open(DATADIR + '/AF007_KJFK-LFPG_13Mar2016_00:15z_OFP_6_0_1.txt',

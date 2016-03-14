@@ -57,6 +57,13 @@ def dm2decimal(s):
 
 
 def latlng2dm(latlng):
+	"""
+	Degrees Minutes representation of LatLng
+	:param latlng: LatLng
+	:return: unicode
+	>>> latlng2dm(LatLng(45.5, 30.5))
+	>>> u'N4530.0E03030.0'
+	"""
 	def dm(v, pattern):
 		f, degrees = math.modf(abs(v))
 		cents, minutes = math.modf(f * 60)

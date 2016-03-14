@@ -4,7 +4,6 @@ import itertools
 import re
 import sys
 from datetime import datetime, timedelta, tzinfo
-from editolido.geolite import latlng2dm
 from editolido.route import Route
 from editolido.geopoint import GeoPoint, dm_normalizer, arinc_normalizer
 
@@ -33,6 +32,7 @@ class OFP(object):
 	def __init__(self, text):
 		self.text = text
 		self._infos = None
+		self._fpl_route = None
 
 	@staticmethod
 	def log_error(message):
@@ -215,7 +215,10 @@ class OFP(object):
 		FPL route found in OFP (fpl without any speed/FL informations)
 		:return: list
 		"""
-		return [p.split('/', 1)[0] if '/' in p else p for p in self.fpl]
+		if self._fpl_route is None:
+			self._fpl_route = \
+				[p.split('/', 1)[0] if '/' in p else p for p in self.fpl]
+		return self._fpl_route
 
 	@property
 	def lido_route(self):
@@ -227,15 +230,18 @@ class OFP(object):
 		points = []
 		raw_points = []
 		for p in self.wpt_coordinates:
-			dm = latlng2dm(p)
-			raw_points.append(dm)
+			raw_points.append(p.dm)
 			if re.search(r'\d+', p.name) or not p.name:
-				points.append(dm)
+				points.append(p.dm)
 			else:
 				points.append(p.name)
 
 		lido_route = []
-		inner_fpl_route = self.fpl_route[1:-1]
+		try:
+			departure, inner_fpl_route, destination = (
+			    self.fpl_route[0], self.fpl_route[1:-1], self.fpl_route[-1])
+		except IndexError:
+			return points
 		# replace points by raw_points before first common waypoint
 		for i, p in enumerate(inner_fpl_route):
 			if p in points:
@@ -281,5 +287,5 @@ class OFP(object):
 		# 			continue
 
 		# adds back departure and destination
-		lido_route = [self.fpl_route[0]] + lido_route + [self.fpl_route[-1]]
+		lido_route = [departure] + lido_route + [destination]
 		return lido_route
