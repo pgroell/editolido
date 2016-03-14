@@ -217,7 +217,7 @@ class OFP(object):
 		"""
 		if self._fpl_route is None:
 			self._fpl_route = \
-				[p.split('/', 1)[0] if '/' in p else p for p in self.fpl]
+			    [p.split('/', 1)[0] if '/' in p else p for p in self.fpl]
 		return self._fpl_route
 
 	@property
@@ -227,7 +227,7 @@ class OFP(object):
 		SID/STAR/NAT are represented by geographic points
 		:return: list
 		"""
-		points = []
+		points = []  # backup if no fpl
 		raw_points = []
 		for p in self.wpt_coordinates:
 			raw_points.append(p.dm)
