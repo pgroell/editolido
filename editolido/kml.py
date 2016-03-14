@@ -49,13 +49,8 @@ class KMLGenerator(object):
 		style = kwargs.get('style', None)
 		if style is None:
 			kwargs['style'] = '#' + folder
-		else:
-			try:
-				style = int(style)
-			except ValueError:
-				pass
-			else:
-				kwargs['style'] = PINS[style]
+		elif isinstance(style, (long, int)):
+			kwargs['style'] = PINS[style]
 
 	def add_line(self, folder, route, **kwargs):
 		"""
@@ -110,6 +105,11 @@ class KMLGenerator(object):
 		    **variables))
 
 	def render(self, **kwargs):
+		"""
+		Render the full .kml
+		:param kwargs:
+		:return: unicode
+		"""
 		return self.template.format(
 			folders=self.render_folders(),
 			**kwargs

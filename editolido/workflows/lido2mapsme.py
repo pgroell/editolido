@@ -17,7 +17,7 @@ def lido2mapsme(action_in, params):
 	              description=ofp.description)
 
 	natmarks = []
-	if params['Couleur NAT']:
+	if params['Afficher NAT']:
 		index = 0 if params['Position repère'] == NAT_POSITION_ENTRY else -1
 		for track in ofp.tracks:
 			kml.add_line('rnat', track)
@@ -27,22 +27,23 @@ def lido2mapsme(action_in, params):
 				natmarks.append(p)
 				kml.add_point('rnat', p, style=params['Repère NAT'])
 
-	if params['Couleur Ortho']:
+	if params['Afficher Ortho']:
 		greatcircle = Route((route[0], route[-1])).split(300)
 		greatcircle.name = "Ortho %s" % route_name
 		kml.add_line('greatcircle', greatcircle)
 
-	if params['Couleur Route']:
-		kml.add_line('rmain', route)
-
+	kml.add_line('rmain', route)
 	if params['Point Route'] != PIN_NONE:
 		kml.add_points('rmain', route,
 		               excluded=natmarks, style=params['Point Route'])
 
+	if params['Afficher Ogimet']:
+		pass
+
 	return kml.render(
 		name=ofp.description,
-		nat_color=params['Couleur NAT'],
-		ogimet_color=params['Couleur Ogimet'],
-		greatcircle_color=params['Couleur Ortho'],
-		route_color=params['Couleur Route']
+		nat_color=params['Couleur NAT'] or '60DA25A8',
+		ogimet_color=params['Couleur Ogimet'] or '50FF0000',
+		greatcircle_color=params['Couleur Ortho'] or '5F1478FF',
+		route_color=params['Couleur Route'] or 'FFDA25A8'
 	)
