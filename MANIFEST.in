@@ -1,0 +1,3 @@
+include *.txt *.md
+recursive-include editolido *.txt *.py
+recursive-exclude test *
