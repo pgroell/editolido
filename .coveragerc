@@ -1,4 +1,6 @@
 # .coveragerc to control coverage.py
 [run]
 omit =
-    geohash.py
+    editolido/geohash.py
+    setup.py
+    wmogrid.py

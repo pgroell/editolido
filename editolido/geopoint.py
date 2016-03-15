@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
 import math
 from decimal import Decimal
+
 from editolido.geolite import LatLng, LatPhi, latphi2latlng, dm2decimal, \
 	latlng2dm
 
@@ -208,3 +210,24 @@ class GeoPoint(object):
 		rlat = math.atan2(z, math.sqrt(math.pow(x, 2) + math.pow(y, 2)))
 		phi = math.atan2(y, x)
 		return self.__class__((rlat, phi), normalizer=latphi2latlng)
+
+
+class GeoPointEncoder(json.JSONEncoder):
+	def default(self, o):
+		if isinstance(o, GeoPoint):
+			return {
+				'__geopoint__': True,
+				'latitude': str(o.latitude),
+				'longitude': str(o.longitude),
+				'name': o.name,
+				'description': o.description,
+			}
+		# Let the base class default method raise the TypeError
+		return json.JSONEncoder.default(self, o)  # pragma: no cover
+
+
+def as_geopoint(dct):
+	if '__geopoint__' in dct:
+		return GeoPoint((dct['latitude'], dct['longitude']),
+		                name=dct['name'], description=dct['description'])
+	return dct

@@ -29,6 +29,7 @@ LatPhi = namedtuple('LatPhi', ['rlat', 'phi'])
 rad_to_nm = partial(operator.mul, R / NM)
 rad_to_km = partial(operator.mul, R / 1000.0)
 nm_to_rad = partial(operator.mul, NM / R)
+km_to_rad = partial(operator.mul, 1000.0 / R)
 km_to_nm = partial(operator.mul, 1000.0 / NM)
 
 
