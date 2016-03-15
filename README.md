@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/flyingeek/editolido.svg?branch=master)](https://travis-ci.org/flyingeek/editolido)
+
 Coding
 ------
 - apply PEP8
