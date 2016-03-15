@@ -6,7 +6,7 @@ from unittest import TestCase
 import os
 import sys
 
-from editolido import OFP
+from editolido.ofp import OFP
 from editolido.route import Route
 from editolido.geopoint import GeoPoint, dm_normalizer
 

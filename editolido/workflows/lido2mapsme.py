@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from editolido import OFP, Route, GeoPoint
+from editolido.ofp import OFP
+from editolido.route import Route
+from editolido.geopoint import GeoPoint
 from editolido.constants import NAT_POSITION_ENTRY, PIN_NONE
 from editolido.kml import KMLGenerator
 

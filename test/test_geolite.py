@@ -66,7 +66,7 @@ class TestGeolite(TestCase):
 
 	def test_arinc_normalizer(self):
 		from editolido.geolite import LatLng
-		from editolido import arinc_normalizer
+		from editolido.geopoint import arinc_normalizer
 		self.assertIsInstance(arinc_normalizer('55N020W'), LatLng)
 		self.assertEqual(arinc_normalizer('55N020W'), LatLng(55, -20))
 		self.assertEqual(arinc_normalizer('55S020W'), LatLng(-55, -20))
@@ -86,7 +86,7 @@ class TestGeolite(TestCase):
 
 	def test_dm_normalizer(self):
 		from editolido.geolite import LatLng
-		from editolido import dm_normalizer
+		from editolido.geopoint import dm_normalizer
 		self.assertEqual(
 			dm_normalizer('N5530.3E01030.3'),
 			LatLng(Decimal('55.505'), Decimal('10.505')))

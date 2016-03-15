@@ -93,7 +93,6 @@ class GeoPoint(object):
 			self.latlng = value.latlng
 		else:
 			self.latlng = normalizer(value) if normalizer else value
-		assert isinstance(self.latlng, LatLng)
 		self.name = name
 		self.description = description
 		self._latphi = self._dm = None
