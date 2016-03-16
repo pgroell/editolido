@@ -20,6 +20,12 @@
 			    <width>3</width>
             </LineStyle>
 		</Style>
+		<Style id='ogimet'>
+			<LineStyle>
+			    <color>{ogimet_color}</color>
+			    <width>3</width>
+            </LineStyle>
+		</Style>
         {folders}
 	</Document>
 </kml>
