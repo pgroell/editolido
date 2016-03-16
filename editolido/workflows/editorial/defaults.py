@@ -12,5 +12,5 @@ params = {
 	'Couleur Ogimet': '',
 	'Afficher NAT': True,
 	'Afficher Ortho': True,
-	'Afficher Ogimet': False,
+	'Afficher Ogimet': True,
 }
