@@ -62,7 +62,7 @@ def lido2mapsme(action_in, params):
 				if neighbours:
 					point, d = neighbours[0]
 					if sid and point.distance_to(start, converter=rad_to_km) < 500:
-						step = 60
+						step = min(60, default_step)
 					else:
 						sid = False
 						step = default_step
@@ -77,11 +77,11 @@ def lido2mapsme(action_in, params):
 		ogimet_points = []
 		while True:
 			ogimet_points = build_ogimet(step)
-			if len(ogimet_points) < 22:
+			if len(ogimet_points) < 23:
 				break
 			ogimet_sites = [p.name for p in ogimet_points]
 			print 'Route Ogimet (%s): %s' % (len(ogimet_sites), '_'.join(ogimet_sites))
-			step *= 1.5
+			step *= 2
 		ogimet_sites = [p.name for p in ogimet_points]
 		# clipboard.set('_'.join(ogimet_sites))
 		print 'Route Ogimet (%s): %s' % (len(ogimet_sites), '_'.join(ogimet_sites))
