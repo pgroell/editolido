@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from editolido.constants import NAT_POSITION_ENTRY, PIN_NONE
 from editolido.geoindex import GeoGridIndex
 from editolido.geolite import km_to_rad, rad_to_km
+from editolido.geopoint import GeoPoint
+from editolido.kml import KMLGenerator
 from editolido.ofp import OFP
 from editolido.route import Route
-from editolido.geopoint import GeoPoint
-from editolido.constants import NAT_POSITION_ENTRY, PIN_NONE
-from editolido.kml import KMLGenerator
 
 
 def lido2mapsme(action_in, params):
