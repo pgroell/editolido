@@ -227,7 +227,10 @@ class GeoPointEncoder(json.JSONEncoder):
 
 
 def as_geopoint(dct):
-	if '__geopoint__' in dct:
-		return GeoPoint((dct['latitude'], dct['longitude']),
-		                name=dct['name'], description=dct['description'])
+	try:
+		if '__geopoint__' in dct:
+			return GeoPoint((dct['latitude'], dct['longitude']),
+			                name=dct['name'], description=dct['description'])
+	except TypeError:
+		pass
 	return dct

@@ -106,6 +106,8 @@ class GeoGridIndex(object):
 				'precision={0}'.format(suggested_precision)
 			)
 		me_and_neighbors = geohash.expand(self.get_point_hash(center_point))
+		for key in me_and_neighbors:
+			self.data[key] = map(as_geopoint, self.data.get(key, []))
 		return chain(*(self.data.get(key, []) for key in me_and_neighbors))
 
 	def get_nearest_points(self, center_point, radius, converter=km_to_rad):
@@ -140,4 +142,4 @@ class GeoGridIndex(object):
 
 	def load(self):
 		with open(self.json_filename(), 'r') as f:
-			self.data = json.load(f, encoding='utf-8', object_hook=as_geopoint)
+			self.data = json.load(f, encoding='utf-8')
