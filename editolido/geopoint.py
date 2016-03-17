@@ -63,14 +63,14 @@ def arinc_normalizer(s):
 		lat = Decimal(s[0] + s[2]) + Decimal(0.5)
 		lng = Decimal('1' + s[3:5])
 		return signed(s[1], lat, lng)
-	elif s[4] in 'NESW':
+	elif s[4] in 'NS':
 		# 5530N020W => N5530.0W02000.0 => (55.5, -20)
-		lat = dm2decimal(s[4:5] + s[0:4] + '.0')
+		lat = dm2decimal(s[4] + s[0:4] + '.0')
 		lng = dm2decimal(s[-1] + s[5:-1] + '00.0')
 	else:
 		# 55N020W => N5500.0W02000.0 => (55.0, -20)
-		lat = dm2decimal(s[2:3] + s[0:2] + '00.0')
-		lng = dm2decimal(s[6:7] + s[3:6] + '00.0')
+		lat = dm2decimal(s[2] + s[0:2] + '00.0')
+		lng = dm2decimal(s[-1] + s[3:-1] + '00.0')
 	return LatLng(lat, lng)
 
 
