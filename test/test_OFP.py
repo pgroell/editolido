@@ -103,6 +103,17 @@ class TestOFP(TestCase):
 		self.assertTrue(tracks[0].name.endswith('A'))
 		self.assertTrue(tracks[-1].name.endswith('J'))
 
+	def tests_tracks_rlat(self):
+		msg = 'TRACKSNAT F   5230N020W 5330N030W 53N040W LVLS WB 350'
+		expected = [
+			GeoPoint((52.5, -20)), GeoPoint((53.5, -30)), GeoPoint((53, -40))]
+		ofp = OFP(msg)
+		tracks = list(ofp.tracks)
+		self.assertEqual(len(tracks), 1)
+		track = tracks[0]
+		self.assertEqual(track.name, 'NAT F')
+		self.assertEqual(list(track.route), expected)
+
 	def test_infos(self):
 		from datetime import datetime, timedelta
 		from editolido.ofp import utc

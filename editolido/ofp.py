@@ -137,7 +137,7 @@ class OFP(object):
 
 		def nat_route_generator(text):
 			m = re.findall(
-			    r'(\d{2}[NS]\d{3}[EW]|[NESW]\d{4}|\d[NESW]\d{3}[^EW])',
+			    r'(\d{2,4}[NS]\d{3}[EW]|[NESW]\d{4}|\d[NESW]\d{3}[^EW])',
 			    text.split('LVLS')[0])
 			for arinc_point in m:
 				yield GeoPoint(arinc_point, normalizer=arinc_normalizer)
