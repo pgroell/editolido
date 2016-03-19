@@ -1,9 +1,9 @@
 <Placemark>
-	<name>{name}</name>
-	<styleUrl>{style}</styleUrl>
-	<description>{description}</description>
-	<LineString>
-		<tessellate>1</tessellate>
-		<coordinates>{coordinates}</coordinates>
-	</LineString>
+  <name>{name}</name>
+  <styleUrl>{style}</styleUrl>
+  <description>{description}</description>
+  <LineString>
+    <tessellate>1</tessellate>
+    <coordinates>{coordinates}</coordinates>
+  </LineString>
 </Placemark>
