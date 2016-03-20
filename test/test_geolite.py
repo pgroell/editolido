@@ -5,16 +5,6 @@ from decimal import Decimal
 
 
 class TestGeolite(TestCase):
-    # def test_latlng2latphi(self):
-    # 	import math
-    # 	from editolido import LatPhi, LatLng, latlng2latphi
-    # 	latlng = LatLng(45.0, 50.0)
-    # 	latphi = latlng2latphi(latlng)
-    # 	self.assertIsInstance(latphi, LatPhi)
-    # 	self.assertIsInstance(latphi.rlat, float)
-    # 	self.assertIsInstance(latphi.phi, float)
-    # 	self.assertAlmostEqual(latphi.rlat, math.radians(latlng.latitude))
-    # 	self.assertAlmostEqual(latphi.phi, math.radians(latlng.longitude))
 
     def test_latphi2latlng(self):
         import math

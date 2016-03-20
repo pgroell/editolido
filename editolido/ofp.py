@@ -296,13 +296,14 @@ class OFP(object):
         # replace NAR by intermediate points if any
         # Should be correctly handheld by mPilot, but just in case...
         # for i, p in enumerate(lido_route):
-        # 	if re.match(r'^N\d+A$', p.strip()):
-        # 		try:
-        # 			before = points.index(lido_route[i - 1])
-        # 			after = len(points) - points[::-1].index(lido_route[i + 1])
-        # 			lido_route[i:i + 1] = points[before + 1:after - 1]
-        # 		except (ValueError, IndexError):
-        # 			continue
+        #     if re.match(r'^N\d+A$', p.strip()):
+        #         try:
+        #             before = points.index(lido_route[i - 1])
+        #             after = (len(points) -
+        #                      points[::-1].index(lido_route[i + 1]))
+        #             lido_route[i:i + 1] = points[before + 1:after - 1]
+        #         except (ValueError, IndexError):
+        #             continue
 
         # adds back departure and destination
         lido_route = [departure] + lido_route + [destination]
