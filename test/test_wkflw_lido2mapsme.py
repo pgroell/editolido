@@ -17,3 +17,9 @@ class TestLido2Mapsme(TestCase):
         output = lido2mapsme(
             workflow.get_input(), workflow.get_parameters(), debug=True)
         self.assertTrue(output)
+
+    def test_new_nat_format(self):
+        workflow = Workflow("AF009_KJFK-LFPG_18Mar2016_04:55z_OFP_12_0_1.txt")
+        output = lido2mapsme(
+            workflow.get_input(), workflow.get_parameters(), debug=True)
+        self.assertTrue(output)

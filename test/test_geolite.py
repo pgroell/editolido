@@ -80,6 +80,7 @@ class TestGeolite(TestCase):
         self.assertEqual(arinc_normalizer('5S520'), LatLng(-55.5, 120))
         self.assertEqual(arinc_normalizer('5W520'), LatLng(-55.5, -120))
         self.assertEqual(arinc_normalizer('5530N020W'), LatLng(55.5, -20))
+        self.assertEqual(arinc_normalizer('5530N02000W'), LatLng(55.5, -20))
         with self.assertRaises(AssertionError):
             arinc_normalizer('5U520')
         with self.assertRaises(AssertionError):

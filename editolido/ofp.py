@@ -119,9 +119,27 @@ class OFP(object):
         :return: iterator of tuple (letter, full description)
         """
         s = self.get_between('TRACKSNAT', 'NOTES:')
-        # split at track letter, discard first part.
-        it = iter(re.split(r'(?:\s|[^A-Z])([A-Z])\s{3}', s)[1:])
-        return itertools.izip(it, it)
+        if 'REMARKS:' in s:
+            s = s.split('REMARKS:', 1)[0]  # now REMARKS: instead of NOTES:
+            s = s.split('Generated at')[0]
+        if ' LVLS ' in s:
+            # old mode, split at track letter, discard first part.
+            it = iter(re.split(r'(?:\s|[^A-Z])([A-Z])\s{3}', s)[1:])
+            return itertools.izip(it, it)
+        else:
+            def updated_mar2016_generator():
+                # Letter is lost in the middle
+                # track route starts with something like ELSIR 50
+                l = [m.start() for m in re.finditer('[A-Z]{5} \d\d', s)]
+                for start, end in itertools.izip_longest(l, l[1:]):
+                    t = s[start:end]
+                    # letter is here
+                    parts = re.split('([A-Z])LVLS', t)
+                    # adds some missing spaces
+                    parts[2] = parts[2].replace(
+                        'LVLS', ' LVLS').replace('NIL', 'NIL ')
+                    yield parts[1], "%s LVLS%s" % (parts[0], parts[2])
+            return updated_mar2016_generator()
 
     @property
     def tracks(self):
@@ -137,7 +155,7 @@ class OFP(object):
 
         def nat_route_generator(text):
             m = re.findall(
-                r'(\d{2,4}[NS]\d{3}[EW]|[NESW]\d{4}|\d[NESW]\d{3}[^EW])',
+                r'(\d{2,4}[NS]\d{3,5}[EW]|[NESW]\d{4}|\d[NESW]\d{3}[^EW])',
                 text.split('LVLS')[0])
             for arinc_point in m:
                 yield GeoPoint(arinc_point, normalizer=arinc_normalizer)

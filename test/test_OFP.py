@@ -114,6 +114,30 @@ class TestOFP(TestCase):
         self.assertEqual(track.name, 'NAT F')
         self.assertEqual(list(track.route), expected)
 
+    def tests_tracks_rlat_new_format(self):
+        with open(DATADIR + '/AF009_KJFK-LFPG_18Mar2016_04:55z_OFP_12_0_1.txt', 'r') as f:
+            ofp = OFP(f.read())
+            tracks = list(ofp.tracks)
+            self.assertEqual(len(tracks), 7)
+            self.assertEqual(
+                tracks[0],
+                Route([
+                    GeoPoint((50, -50)),
+                    GeoPoint((51, -40)),
+                    GeoPoint((52, -30)),
+                    GeoPoint((53, -20))])
+            )
+            self.assertEqual(
+                tracks[2],
+                Route([
+                    GeoPoint((48.5, -50)),
+                    GeoPoint((49.5, -40)),
+                    GeoPoint((50.5, -30)),
+                    GeoPoint((51.5, -20))])
+            )
+            self.assertTrue(tracks[0].name.endswith('T'))
+            self.assertTrue(tracks[-1].name.endswith('Z'))
+
     def test_infos(self):
         from datetime import datetime, timedelta
         from editolido.ofp import utc
