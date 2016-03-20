@@ -27,11 +27,13 @@ Changements:
 ##v1.0.0b5: rlatsm fix
  - voir (https://github.com/flyingeek/editolido/issues/2)
 
+##v1.0.0b7: rlatsm message format fix
+ - voir (https://github.com/flyingeek/editolido/issues/5)
+
 Coding
 ------
 - apply PEP8
-- Use smart tabs for easyer editing on IOS
-  (indent with tabs, align with spaces)
+- Use spaces for identation
 
 Run unittests
 -------------
