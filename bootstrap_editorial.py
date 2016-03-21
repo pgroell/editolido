@@ -67,6 +67,7 @@ def download_package(github_url, zip_folder, install_dir, name="editolido"):
             log_info('print creating directory %s' % install_dir)
             os.makedirs(install_dir)
         dest = os.path.join(install_dir, name)
+        print dest
         try:
             if dest and name and os.path.exists(dest):
                 shutil.rmtree(dest)
