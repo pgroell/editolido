@@ -5,8 +5,7 @@ import requests
 
 
 # This file is executed within a context:
-EDITOLIDO = globals()['EDITOLIDO']
-params = globals()['params']
+# params = globals()['params']
 
 
 def logme(message, level=0):
@@ -114,17 +113,19 @@ def show_editolido_status():
         log_info('module editolido %s installé' % editolido.__version__)
 
 
-try:
-    tagname, zipball_url = get_latest_release()
-    if tagname and zipball_url:
-        download_package(
-            zipball_url,
-            'editolido-%s' % tagname,
-            os.path.dirname(EDITOLIDO)
-        )
+def install_editolido(install_dir, name='editolido'):
+    try:
+        tagname, zipball_url = get_latest_release()
+        if tagname and zipball_url:
+            download_package(
+                zipball_url,
+                'editolido-%s' % tagname,
+                install_dir,
+                name=name,
+            )
+        else:
+            log_error('no editolido release available')
+    except (IOError, OSError):
+        log_error('install failed')
     else:
-        log_error('no editolido release available')
-except (IOError, OSError):
-    log_error('install failed')
-else:
-    show_editolido_status()
+        show_editolido_status()
