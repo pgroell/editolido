@@ -1,19 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 import os
-from cStringIO import StringIO
-import zipfile
-import shutil
-from contextlib import closing
 import requests
 
-# console is an Editorial module
-# noinspection PyUnresolvedReferences
-import console
 
-# This file is executed with a context containing:
-# - EDITOLIDO
-# - params (the action parameters)
+# This file is executed within a context:
+EDITOLIDO = globals()['EDITOLIDO']
+params = globals()['params']
 
 
 def logme(message, level=0):
@@ -38,10 +31,11 @@ def get_latest_release():
         url = 'https://github.com/flyingeek/editolido/archive/{0}.zip'.format(
             data[0]['name']
         )
+        r.close()
         return data[0]['name'], url
     except (IndexError, KeyError):
         pass
-    return None
+    return None, None
 
 
 def download_package(github_url, zip_folder, install_dir, name="editolido"):
@@ -61,17 +55,19 @@ def download_package(github_url, zip_folder, install_dir, name="editolido"):
         log_error('download fail... aborting update')
     else:
         log_info('extracting data')
+        import shutil
+        import zipfile
+        from contextlib import closing
+        from cStringIO import StringIO
         with closing(r), zipfile.ZipFile(StringIO(r.content)) as z:
             base = '%s/%s/' % (zip_folder, name)
             z.extractall(os.getcwd(),
                          filter(lambda m: m.startswith(base), z.namelist()))
         log_info('installing %s' % name)
-        print install_dir
         if not os.path.exists(install_dir):
             log_info('print creating directory %s' % install_dir)
             os.makedirs(install_dir)
         dest = os.path.join(install_dir, name)
-        print dest
         try:
             if dest and name and os.path.exists(dest):
                 shutil.rmtree(dest)
@@ -89,35 +85,46 @@ def download_package(github_url, zip_folder, install_dir, name="editolido"):
                 log_error('could not remove %s/%s' % (os.getcwd(), zip_folder))
                 raise
 
-try:
-    tagname, zipball_url = get_latest_release()
-    # noinspection PyUnresolvedReferences
-    download_package(
-        zipball_url,
-        'editolido-%s' % tagname,
-        os.path.dirname(EDITOLIDO)
-    )
-except (IOError, OSError):
-    log_error('install failed')
 
-try:
+def show_editolido_status():
+    # console is an Editorial module
     # noinspection PyUnresolvedReferences
-    import editolido
-except ImportError:
+    import console
     try:
         # noinspection PyUnresolvedReferences
-        console.alert(
-            'Module editolido manquant',
-            "Assurez vous d'avoir une connexion internet et recommencez "
-            "pour tenter un nouveau téléchargement",
-            'OK', hide_cancel_button=True)
+        import editolido
+        reload(editolido)
+    except ImportError:
+        try:
+            # noinspection PyUnresolvedReferences
+            console.alert(
+                'Module editolido manquant',
+                "Assurez vous d'avoir une connexion internet et recommencez "
+                "pour tenter un nouveau téléchargement",
+                'OK', hide_cancel_button=True)
+        except NameError:
+            pass
+        log_error('editolido module is missing, aborting !')
+        raise KeyboardInterrupt
+    try:
+        # noinspection PyUnresolvedReferences
+        console.hud_alert(
+            'module editolido %s installé' % editolido.__version__, 'success')
     except NameError:
-        pass
-    log_error('editolido module is missing, aborting !')
-    raise KeyboardInterrupt
+        log_info('module editolido %s installé' % editolido.__version__)
+
+
 try:
-    # noinspection PyUnresolvedReferences
-    console.hud_alert(
-        'module editolido %s installé' % editolido.__version__, 'success')
-except NameError:
-    log_info('module editolido %s installé' % editolido.__version__)
+    tagname, zipball_url = get_latest_release()
+    if tagname and zipball_url:
+        download_package(
+            zipball_url,
+            'editolido-%s' % tagname,
+            os.path.dirname(EDITOLIDO)
+        )
+    else:
+        log_error('no editolido release available')
+except (IOError, OSError):
+    log_error('install failed')
+else:
+    show_editolido_status()
