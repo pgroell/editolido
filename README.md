@@ -3,6 +3,7 @@
 Je sais je dois faire la doc... :-)
 
 Pour la première utilisation il faut être connecté à Internet.
+De plus à la première installation un message "module editolido manquant" apparait, il faut redémarrer Editorial en attendant une correction de ce pb.
 
 Usage:
 -----
