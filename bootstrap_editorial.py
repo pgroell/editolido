@@ -35,7 +35,10 @@ def get_latest_release():
     r = requests.get('https://api.github.com/repos/flyingeek/editolido/tags')
     data = r.json()
     try:
-        return data[0]['name'], data[0]['zipball_url']
+        url = 'https://github.com/flyingeek/editolido/archive/{0}.zip'.format(
+            data[0]['name']
+        )
+        return data[0]['name'], url
     except (IndexError, KeyError):
         pass
     return None
