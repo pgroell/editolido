@@ -63,6 +63,7 @@ def download_package(github_url, zip_folder, install_dir, name="editolido"):
             z.extractall(os.getcwd(),
                          filter(lambda m: m.startswith(base), z.namelist()))
         log_info('installing %s' % name)
+        print install_dir
         if not os.path.exists(install_dir):
             log_info('print creating directory %s' % install_dir)
             os.makedirs(install_dir)
