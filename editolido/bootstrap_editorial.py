@@ -38,10 +38,19 @@ def get_latest_release():
 
 
 def download_package(github_url, zip_folder, install_dir, name="editolido"):
+    import shutil
+    import zipfile
+    from contextlib import closing
+    from cStringIO import StringIO
     log_info('downloading %s' % github_url)
     r = requests.get(github_url, verify=True, stream=True)
     try:
         r.raise_for_status()
+        with closing(r), zipfile.ZipFile(StringIO(r.content)) as z:
+            base = '%s/%s/' % (zip_folder, name)
+            log_info('extracting data')
+            z.extractall(os.getcwd(),
+                         filter(lambda m: m.startswith(base), z.namelist()))
     except requests.HTTPError:
         log_error('status code %s' % r.status_code)
     except requests.Timeout:
@@ -53,15 +62,6 @@ def download_package(github_url, zip_folder, install_dir, name="editolido"):
     except requests.exceptions.RequestException:
         log_error('download fail... aborting update')
     else:
-        log_info('extracting data')
-        import shutil
-        import zipfile
-        from contextlib import closing
-        from cStringIO import StringIO
-        with closing(r), zipfile.ZipFile(StringIO(r.content)) as z:
-            base = '%s/%s/' % (zip_folder, name)
-            z.extractall(os.getcwd(),
-                         filter(lambda m: m.startswith(base), z.namelist()))
         log_info('installing %s' % name)
         if not os.path.exists(install_dir):
             log_info('print creating directory %s' % install_dir)
