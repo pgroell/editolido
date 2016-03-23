@@ -138,6 +138,39 @@ class TestOFP(TestCase):
             self.assertTrue(tracks[0].name.endswith('T'))
             self.assertTrue(tracks[-1].name.endswith('Z'))
 
+    def tests_tracks_with_page_break(self):
+        with open(DATADIR + '/AF011_KJFK-LFPG_22Mar2016_02:45z_OFP_8_0_1.txt', 'r') as f:
+            ofp = OFP(f.read())
+            tracks = list(ofp.tracks)
+            self.assertEqual(len(tracks), 8)
+            self.assertEqual(
+                tracks[0],
+                Route([
+                    GeoPoint((51, -50)),
+                    GeoPoint((52, -40)),
+                    GeoPoint((54, -30)),
+                    GeoPoint((56, -20))])
+            )
+            self.assertEqual(tracks[6].name, 'NAT Y')
+            self.assertEqual(
+                tracks[6],  # Y
+                Route([
+                    GeoPoint((40, -60)),
+                    GeoPoint((41, -50)),
+                    GeoPoint((41, -40))])
+            )
+            self.assertEqual(tracks[4].name, 'NAT W')
+            self.assertEqual(
+                tracks[4],  # W
+                Route([
+                    GeoPoint((47, -50)),
+                    GeoPoint((48, -40)),
+                    GeoPoint((50, -30)),
+                    GeoPoint((52, -20))])
+            )
+            self.assertTrue(tracks[0].name.endswith('S'))
+            self.assertTrue(tracks[-1].name.endswith('Z'))
+
     def test_infos(self):
         from datetime import datetime, timedelta
         from editolido.ofp import utc
@@ -207,6 +240,16 @@ class TestOFP(TestCase):
             "NIGIT UL18 SFD UM605 BIBAX BIBAX7W LFPG"
         )
 
+    def test_fpl_route_af011_22Mar2016(self):
+        with open(DATADIR + '/AF011_KJFK-LFPG_22Mar2016_02:45z_OFP_8_0_1.txt', 'r') as f:
+            ofp = OFP(f.read())
+        self.assertEqual(
+            ' '.join(ofp.fpl_route),
+            "KJFK DCT BETTE DCT ACK DCT KANNI N139A PORTI NATW "
+            "LIMRI NATW XETBO DCT UNLID DCT LULOX UN84 NAKID UM25 UVSUV "
+            "UM25 INGOR UM25 LUKIP LUKIP7E LFPG"
+        )
+
     def test_lido_route(self):
         with open(DATADIR + '/KJFK-LFPG 27Mar2015 05:45z.txt', 'r') as f:
             ofp = OFP(f.read())
@@ -217,6 +260,19 @@ class TestOFP(TestCase):
             'STU UP2 NIGIT UL18 SFD UM605 BIBAX N4918.0E00134.2 '
             'N4917.5E00145.4 N4915.7E00223.3 N4915.3E00230.9 '
             'N4913.9E00242.9 LFPG'
+        )
+
+    def test_lido_route_af011_22Mar2016(self):
+        with open(DATADIR + '/AF011_KJFK-LFPG_22Mar2016_02:45z_OFP_8_0_1.txt', 'r') as f:
+            ofp = OFP(f.read())
+        self.maxDiff = None
+        self.assertEqual(
+            ' '.join(ofp.lido_route),
+            "KJFK N4036.7W07353.7 BETTE DCT ACK DCT KANNI N139A PORTI "
+            "47N050W 48N040W 50N030W 52N020W "
+            "LIMRI XETBO DCT UNLID DCT LULOX UN84 NAKID UM25 UVSUV "
+            "UM25 INGOR UM25 LUKIP N4918.0E00134.2 N4917.5E00145.4 "
+            "N4910.2E00150.4 LFPG"
         )
 
     def test_lido_route_no_tracksnat(self):

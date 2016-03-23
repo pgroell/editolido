@@ -124,7 +124,7 @@ class OFP(object):
             s = s.split('Generated at')[0]
         if ' LVLS ' in s:
             # old mode, split at track letter, discard first part.
-            it = iter(re.split(r'(?:\s|[^A-Z])([A-Z])\s{3}', s)[1:])
+            it = iter(re.split(r'(?:\s|[^A-Z\d])([A-Z])\s{3}', s)[1:])
             return itertools.izip(it, it)
         else:
             def updated_mar2016_generator():
@@ -282,16 +282,42 @@ class OFP(object):
             tracks = self.tracks_iterator()
         except (LookupError, IndexError):
             tracks = []
+
+        # noinspection PyShadowingNames
+        def recursive_nat_replace(route, needle, track_points):
+            """
+            When there is a FL or Speed change, we may have multiple
+            "NATW" in the FPL, so change them all.
+            :param route: list
+            :param needle: unicode
+            :param track_points: list
+            :return: False or list
+            """
+            route = list(route)  # copy
+            match = False
+            while True:
+                try:
+                    offset = route.index(needle)
+                except ValueError:
+                    return match
+                try:
+                    route[offset:offset + 1] = \
+                        track_points[track_points.index(
+                            route[offset - 1]) + 1:track_points.index(
+                            route[offset + 1])]
+                except IndexError:
+                    pass  # leave as is
+                match = route
+
         for track in tracks:
             letter, text = track
-            try:
-                offset = lido_route.index("NAT%s" % letter)
-            except ValueError:
-                continue
             text = text.split('LVLS', 1)[0].strip()
-            lido_route[offset:offset + 1] = \
-                [p for p in text.split(' ') if p][1:-1]
-            break
+            track_points = [p for p in text.split(' ') if p]
+            m = recursive_nat_replace(
+                lido_route, "NAT%s" % letter, track_points)
+            if m:
+                lido_route = m
+                break
 
         # replace NAR by intermediate points if any
         # Should be correctly handheld by mPilot, but just in case...

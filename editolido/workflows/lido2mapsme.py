@@ -1,15 +1,21 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from editolido.constants import NAT_POSITION_ENTRY, PIN_NONE
-from editolido.geopoint import GeoPoint
-from editolido.kml import KMLGenerator
-from editolido.ofp import OFP
-from editolido.route import Route
-from editolido.ogimet import ogimet_route
-
 
 def lido2mapsme(action_in, params, debug=False):
+    """
+    Lido2Mapsme KML rendering action
+    :param action_in: unicode action input
+    :param params: dict action's parameters
+    :param debug: bool determines wether or not to print ogimet debug messages
+    :return:
+    """
+    from editolido.constants import NAT_POSITION_ENTRY, PIN_NONE
+    from editolido.geopoint import GeoPoint
+    from editolido.kml import KMLGenerator
+    from editolido.ofp import OFP
+    from editolido.route import Route
+    from editolido.ogimet import ogimet_route
     ofp = OFP(action_in)
     kml = KMLGenerator()
 
@@ -23,12 +29,15 @@ def lido2mapsme(action_in, params, debug=False):
     if params['Afficher NAT']:
         index = 0 if params['Position repère'] == NAT_POSITION_ENTRY else -1
         for track in ofp.tracks:
-            kml.add_line('rnat', track)
-            if params['Repère NAT'] != PIN_NONE:
-                p = GeoPoint(track[index], name=track.name,
-                             description=track.description)
-                natmarks.append(p)
-                kml.add_point('rnat', p, style=params['Repère NAT'])
+            if track:
+                kml.add_line('rnat', track)
+                if params['Repère NAT'] != PIN_NONE:
+                    p = GeoPoint(track[index], name=track.name,
+                                 description=track.description)
+                    natmarks.append(p)
+                    kml.add_point('rnat', p, style=params['Repère NAT'])
+            else:
+                print "empty track found %s" % track.name
 
     if params['Afficher Ortho']:
         greatcircle = Route((route[0], route[-1])).split(300)
