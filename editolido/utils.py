@@ -32,10 +32,9 @@ def update_editolido(install_dir, boot_url='', url='', name=None,
     tagname = tagname_from_url(url)
     if tagname:
         logger.info('latest remote version is %s' % tagname)
-        remote_version = StrictVersion(tagname)
         # download when local < remote
         # or when remote is a branch (master, beta...)
-        if local_version < remote_version or '.' not in tagname:
+        if '.' not in tagname or local_version < StrictVersion(tagname):
             try:
                 download_package(
                     url,
