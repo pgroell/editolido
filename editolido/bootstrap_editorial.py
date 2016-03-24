@@ -95,7 +95,8 @@ def tagname_from_url(url):
     return False
 
 
-def install_editolido(install_dir, url=None, name='editolido', fake=False):
+def install_editolido(install_dir, boot_url=None, url=None, name='editolido',
+                      fake=False):
     try:
         tagname = tagname_from_url(url)
         if tagname:
