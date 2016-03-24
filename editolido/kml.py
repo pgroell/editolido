@@ -122,7 +122,7 @@ class KMLGenerator(object):
         :return: unicode
         """
         return self.template.format(
-            styles=''.join(self.styles.itervalues()),
+            styles=''.join(self.styles.itervalues()).format(**kwargs),
             folders=self.render_folders(),
             **kwargs
         )
