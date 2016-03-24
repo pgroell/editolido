@@ -1,131 +1,129 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 import os
+import re
 import requests
+try:
+    import workflow
+except ImportError:
+    from editolido.workflows.editorial.workflow import Workflow
+    workflow = Workflow()
 
 
-# This file is executed within a context:
-# params = globals()['params']
+class _Logger(object):
+    def __init__(self, threshold):
+        self.threshold = threshold
+
+    def log(self, message, level=0):
+        if level or (self.threshold and self.threshold >= level):
+            print message
+
+    def info(self, message):
+        self.log(message, 1)
+
+    def error(self, message):
+        self.log(message, 2)
+
+logger = _Logger(workflow.get_parameters().get('Log', 2L))
+
+try:
+    import console
+except ImportError:
+    from editolido.workflows.editorial.console import Console
+    console = Console(logger)
 
 
-def logme(message, level=0):
-    # noinspection PyUnresolvedReferences
-    threshold = params.get('Log')
-    if level == 0 or (threshold and threshold >= level):
-        print(message)
-
-
-def log_error(message):
-    logme(message, 1)
-
-
-def log_info(message):
-    logme(message, 2)
-
-
-def get_latest_release():
-    r = requests.get('https://api.github.com/repos/flyingeek/editolido/tags')
-    data = r.json()
-    try:
-        url = 'https://github.com/flyingeek/editolido/archive/{0}.zip'.format(
-            data[0]['name']
-        )
-        r.close()
-        return data[0]['name'], url
-    except (IndexError, KeyError):
-        pass
-    return None, None
-
-
-def download_package(github_url, zip_folder, install_dir, name="editolido"):
+def download_package(github_url, zip_folder, install_dir, name="editolido",
+                     timeout=None, fake=False):
     import shutil
     import zipfile
     from contextlib import closing
     from cStringIO import StringIO
-    log_info('downloading %s' % github_url)
-    r = requests.get(github_url, verify=True, stream=True)
+    logger.info('downloading %s' % github_url)
     try:
+        r = requests.get(github_url, verify=True, stream=True, timeout=timeout)
         r.raise_for_status()
         with closing(r), zipfile.ZipFile(StringIO(r.content)) as z:
             base = '%s/%s/' % (zip_folder, name)
-            log_info('extracting data')
-            z.extractall(os.getcwd(),
-                         filter(lambda m: m.startswith(base), z.namelist()))
+            logger.info('extracting data')
+            if not fake:
+                z.extractall(
+                    os.getcwd(),
+                    filter(lambda m: m.startswith(base), z.namelist()))
     except requests.HTTPError:
-        log_error('status code %s' % r.status_code)
+        # noinspection PyUnboundLocalVariable
+        logger.error('status code %s' % r.status_code)
     except requests.Timeout:
-        log_error('download timeout... aborting update')
+        logger.error('download timeout... aborting update')
     except requests.ConnectionError:
-        log_error('download connection error... aborting update')
+        logger.error('download connection error... aborting update')
     except requests.TooManyRedirects:
-        log_error('too many redirects... aborting update')
+        logger.error('too many redirects... aborting update')
     except requests.exceptions.RequestException:
-        log_error('download fail... aborting update')
+        logger.error('download fail... aborting update')
     else:
-        log_info('installing %s' % name)
+        logger.info('installing %s' % name)
         if not os.path.exists(install_dir):
-            log_info('print creating directory %s' % install_dir)
+            logger.info('print creating directory %s' % install_dir)
             os.makedirs(install_dir)
         dest = os.path.join(install_dir, name)
         try:
             if dest and name and os.path.exists(dest):
                 shutil.rmtree(dest)
         except OSError:
-            log_error('could not remove %s' % dest)
+            logger.error('could not remove %s' % dest)
             raise
-        if zip_folder:
+        if zip_folder and not fake:
             shutil.move(os.path.join(zip_folder, name), install_dir)
             if not os.path.exists(os.path.join(install_dir, name)):
-                log_error('%s/%s directory missing' % (install_dir, name))
-            log_info('cleaning')
+                logger.error('%s/%s directory missing' % (install_dir, name))
+            logger.info('cleaning')
             try:
                 shutil.rmtree(zip_folder)
             except OSError:
-                log_error('could not remove %s/%s' % (os.getcwd(), zip_folder))
+                logger.error('could not remove %s/%s'
+                             % (os.getcwd(), zip_folder))
                 raise
 
 
-def show_editolido_status():
-    # console is an Editorial module
-    # noinspection PyUnresolvedReferences
-    import console
+def tagname_from_url(url):
+    pattern = re.compile(r'/([^/]+)\.zip')
+    m = pattern.search(url)
+    if m:
+        return m.group(1)
+    return False
+
+
+def install_editolido(install_dir, url=None, name='editolido', fake=False):
     try:
-        # noinspection PyUnresolvedReferences
-        import editolido
-        reload(editolido)
-    except ImportError:
+        tagname = tagname_from_url(url)
+        if tagname:
+            download_package(
+                url,
+                '%s-%s' % (name, tagname),
+                install_dir,
+                name=name,
+                fake=fake,
+            )
+        else:
+            logger.error('invalid url %s' % url)
+            raise IOError
+    except (IOError, OSError):
+        logger.error('install failed')
+    else:
         try:
             # noinspection PyUnresolvedReferences
+            import editolido
+            reload(editolido)
+        except ImportError:
             console.alert(
                 'Module editolido manquant',
                 "Assurez vous d'avoir une connexion internet et recommencez "
                 "pour tenter un nouveau téléchargement",
-                'OK', hide_cancel_button=True)
-        except NameError:
-            pass
-        log_error('editolido module is missing, aborting !')
-        raise KeyboardInterrupt
-    try:
-        # noinspection PyUnresolvedReferences
-        console.hud_alert(
-            'module editolido %s installé' % editolido.__version__, 'success')
-    except NameError:
-        log_info('module editolido %s installé' % editolido.__version__)
-
-
-def install_editolido(install_dir, name='editolido'):
-    try:
-        tagname, zipball_url = get_latest_release()
-        if tagname and zipball_url:
-            download_package(
-                zipball_url,
-                'editolido-%s' % tagname,
-                install_dir,
-                name=name,
-            )
+                'OK',
+                hide_cancel_button=True, )
+            raise KeyboardInterrupt
         else:
-            log_error('no editolido release available')
-    except (IOError, OSError):
-        log_error('install failed')
-    else:
-        show_editolido_status()
+            console.hud_alert(
+                'module editolido %s installé' % editolido.__version__)

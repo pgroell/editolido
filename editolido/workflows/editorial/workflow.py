@@ -8,10 +8,10 @@ class Workflow(object):
     """
     Workflow Mock object
     """
-    def __init__(self, input_filename, parameters=None):
+    def __init__(self, input_filename=None, parameters=None):
         self.output = None
         self.input_filename = input_filename
-        self.parameters = parameters or params
+        self.parameters = parameters if parameters is not None else params
 
     def get_parameters(self):
         return self.parameters
