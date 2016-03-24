@@ -40,8 +40,8 @@ def lido2mapsme(action_in, params, debug=False):
                 print "empty track found %s" % track.name
 
     if params['Afficher Ortho']:
-        greatcircle = Route((route[0], route[-1])).split(300)
-        greatcircle.name = "Ortho %s" % route_name
+        greatcircle = Route((route[0], route[-1])).split(
+            300, name="Ortho %s" % route_name)
         kml.add_line('greatcircle', greatcircle)
 
     kml.add_line('rmain', route)
@@ -60,7 +60,8 @@ def lido2mapsme(action_in, params, debug=False):
                 style=params.get('Point Dégagement', PIN_PINK))
 
     if params['Afficher Ogimet']:
-        kml.add_line('ogimet', ogimet_route(route, debug=debug))
+        kml.add_line('ogimet',
+                     ogimet_route(route, debug=debug, name="Ogimet Route"))
 
     return kml.render(
         name=ofp.description,

@@ -6,7 +6,8 @@ from editolido.geolite import km_to_rad, rad_to_km
 from editolido.route import Route
 
 
-def ogimet_route(route, segment_size=300, debug=False):
+def ogimet_route(route, segment_size=300, debug=False,
+                 name="", description=""):
     wmo_grid = GeoGridIndex()
     wmo_grid.load()
     start = route[0]
@@ -55,4 +56,5 @@ def ogimet_route(route, segment_size=300, debug=False):
         step *= 2
     if debug:
         print_ogimet(ogimet_points)
-    return Route(ogimet_points).split(segment_size, preserve=True)
+    return Route(ogimet_points).split(
+        segment_size, preserve=True, name=name, description=description)

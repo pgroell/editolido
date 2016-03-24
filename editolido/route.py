@@ -72,7 +72,8 @@ class Route(object):
     def __getitem__(self, item):
         return self.route[item]
 
-    def split(self, max_length, converter=nm_to_rad, preserve=False):
+    def split(self, max_length, converter=nm_to_rad, preserve=False,
+              name="", description=""):
         """
         Split a route in smaller segments.
         The new Route might be different from the original one as original
@@ -80,6 +81,8 @@ class Route(object):
         :param max_length: max segment lenght in radians (or converter unit)
         :param converter: a unit converter function, convert unit into radians
         :param preserve: always emit the boundary of the original segments
+        :param name: name of the returned route
+        :param description: description of the returned route
         :return: Route
         """
 
@@ -107,4 +110,5 @@ class Route(object):
                 yield geopoint2  # last if not yet emitted
 
         size = converter(max_length) if converter else max_length
-        return self.__class__(splitted_route_generator(size, preserve))
+        return self.__class__(splitted_route_generator(size, preserve),
+                              name=name, description=description)
