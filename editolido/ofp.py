@@ -99,6 +99,15 @@ class OFP(object):
         return "{flight} {departure}-{destination} {date} {datetime:%H:%M}z " \
                "OFP {ofp}".format(**self.infos)
 
+    @staticmethod
+    def wpt_coordinates_generator(text):
+        for m in re.finditer(r'(\S+|\s+)\s+([NS]\d{4}\.\d)([EW]\d{5}\.\d)',
+                             text):
+            yield GeoPoint(
+                (m.group(2), m.group(3)),
+                name=m.group(1).strip(), normalizer=dm_normalizer
+            )
+
     @property
     def wpt_coordinates(self):
         tag = 'WPT COORDINATES'
@@ -107,11 +116,27 @@ class OFP(object):
         except LookupError:
             self.log_error("%s not found" % tag)
             sys.exit()
-        for m in re.finditer(r'(\S+|\s+)\s+([NS]\d{4}\.\d)([EW]\d{5}\.\d)', s):
-            yield GeoPoint(
-                (m.group(2), m.group(3)),
-                name=m.group(1).strip(), normalizer=dm_normalizer
-            )
+        return self.wpt_coordinates_generator(s)
+
+    @property
+    def wpt_coordinates_alternate(self):
+        start = 'WPT COORDINATES'
+        end = 'ATC FLIGHT PLAN'
+        try:
+            s = self.get_between(start, end, end_is_optional=False)
+        except LookupError:
+            self.log_error("%s not found" % start)
+        except EOFError():
+            self.log_error('%s not found' % end)
+        else:
+            try:
+                s = s.rsplit('----', 1)[1]
+            except IndexError:
+                self.log_error('---- not found while '
+                               'extracting alternate coordinates')
+            else:
+                return self.wpt_coordinates_generator(s)
+        return []
 
     def tracks_iterator(self):
         """

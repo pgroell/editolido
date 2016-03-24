@@ -6,32 +6,43 @@ from collections import OrderedDict
 
 from editolido.constants import PINS
 
+default_linestyle = """
+    <Style id='{0}'>
+      <LineStyle>
+        <color>{{{0}_color}}</color>
+      </LineStyle>
+    </Style>
+"""
+
 
 class KMLGenerator(object):
     def __init__(self, template=None, point_template=None, line_template=None,
-                 folder_template=None):
+                 folder_template=None, style_template=default_linestyle):
         datadir = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), 'data')
         self.template = template
         if template is None:
             with open(os.path.join(datadir, 'mapsme_template.kml')) as f:
-                self.template = f.read()
+                self.template = f.read().decode()
         self.point_template = point_template
         if point_template is None:
             with open(os.path.join(datadir, 'mapsme_point_tpl.kml')) as f:
-                self.point_template = f.read()
+                self.point_template = f.read().decode()
         self.line_template = line_template
         if line_template is None:
             with open(os.path.join(datadir, 'mapsme_line_tpl.kml')) as f:
-                self.line_template = f.read()
+                self.line_template = f.read().decode()
         self.folder_template = folder_template
         if folder_template is None:
             with open(os.path.join(datadir, 'mapsme_folder_tpl.kml')) as f:
-                self.folder_template = f.read()
+                self.folder_template = f.read().decode()
+        self.style_template = style_template
         self.folders = OrderedDict()
+        self.styles = OrderedDict()
 
     def add_folder(self, name):
         self.folders[name] = []
+        self.styles[name] = self.style_template.format(name)
 
     def add_folders(self, *names):
         for name in names:
@@ -111,6 +122,7 @@ class KMLGenerator(object):
         :return: unicode
         """
         return self.template.format(
+            styles=''.join(self.styles.itervalues()),
             folders=self.render_folders(),
             **kwargs
         )

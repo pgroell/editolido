@@ -67,11 +67,45 @@ class TestOFP(TestCase):
             points[5],
             GeoPoint('N5100.0W05000.0', normalizer=dm_normalizer))
 
+    def test_wpt_coordinates_alternate(self):
+        with open(DATADIR + '/KJFK-LFPG 27Mar2015 05:45z.txt', 'r') as f:
+            ofp = OFP(f.read())
+            points = list(ofp.wpt_coordinates_alternate)
+            self.assertEqual(
+                points[0],
+                GeoPoint('N4900.6E00232.9', normalizer=dm_normalizer))
+            self.assertEqual(
+                points[1],
+                GeoPoint('N4825.8E00213.8', normalizer=dm_normalizer))
+            self.assertEqual(
+                points[-1],
+                GeoPoint('N4843.4E00222.8', normalizer=dm_normalizer))
+
+    def test_wpt_coordinates_alternate_af011_22Mar2016(self):
+        with open(DATADIR + '/AF011_KJFK-LFPG_22Mar2016_02:45z_OFP_8_0_1.txt', 'r') as f:
+            ofp = OFP(f.read())
+            points = list(ofp.wpt_coordinates_alternate)
+            self.assertEqual(
+                points[0],
+                GeoPoint('N4900.6E00232.9', normalizer=dm_normalizer))
+            self.assertEqual(
+                points[1],
+                GeoPoint('N4825.8E00213.8', normalizer=dm_normalizer))
+            self.assertEqual(
+                points[-1],
+                GeoPoint('N4843.4E00222.8', normalizer=dm_normalizer))
+
     def test_missing_wpt_coordinates(self):
         ofp = OFP('blabla blabla')
         out, sys.stdout = sys.stdout, StringIO()
         with self.assertRaises(SystemExit):
             list(ofp.wpt_coordinates)
+        sys.stdout = out
+
+    def test_missing_wpt_coordinates_alternate(self):
+        ofp = OFP('blabla blabla')
+        out, sys.stdout = sys.stdout, StringIO()
+        self.assertFalse(list(ofp.wpt_coordinates_alternate))
         sys.stdout = out
 
     def test_missing_tracks(self):

@@ -10,7 +10,7 @@ def lido2mapsme(action_in, params, debug=False):
     :param debug: bool determines wether or not to print ogimet debug messages
     :return:
     """
-    from editolido.constants import NAT_POSITION_ENTRY, PIN_NONE
+    from editolido.constants import NAT_POSITION_ENTRY, PIN_NONE, PIN_PINK
     from editolido.geopoint import GeoPoint
     from editolido.kml import KMLGenerator
     from editolido.ofp import OFP
@@ -19,7 +19,7 @@ def lido2mapsme(action_in, params, debug=False):
     ofp = OFP(action_in)
     kml = KMLGenerator()
 
-    kml.add_folders('greatcircle', 'ogimet', 'rnat', 'rmain')
+    kml.add_folders('greatcircle', 'ogimet', 'rnat', 'ralt', 'rmain')
     route_name = "{departure}-{destination}".format(**ofp.infos)
     route = Route(ofp.wpt_coordinates,
                   name=route_name,
@@ -49,13 +49,24 @@ def lido2mapsme(action_in, params, debug=False):
         kml.add_points('rmain', route,
                        excluded=natmarks, style=params['Point Route'])
 
+    if params.get('Afficher Dégagement', False):
+        alt_route = Route(ofp.wpt_coordinates_alternate,
+                          name="Route Dégagement")
+        kml.add_line('ralt', alt_route)
+        if params.get('Point Dégagement', PIN_NONE) != PIN_NONE:
+            kml.add_points(
+                'ralt', alt_route,
+                excluded=[alt_route.route[0]] if alt_route.route else [],
+                style=params.get('Point Dégagement', PIN_PINK))
+
     if params['Afficher Ogimet']:
         kml.add_line('ogimet', ogimet_route(route, debug=debug))
 
     return kml.render(
         name=ofp.description,
-        nat_color=params['Couleur NAT'] or '60DA25A8',
+        rnat_color=params['Couleur NAT'] or '60DA25A8',
         ogimet_color=params['Couleur Ogimet'] or '50FF0000',
         greatcircle_color=params['Couleur Ortho'] or '5F1478FF',
-        route_color=params['Couleur Route'] or 'FFDA25A8'
+        rmain_color=params['Couleur Route'] or 'FFDA25A8',
+        ralt_color=params.get('Couleur Dégagement', 'FFFF00FF')
     )
