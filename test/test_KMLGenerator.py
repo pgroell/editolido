@@ -67,7 +67,9 @@ class TestKMLGenerator(TestCase):
         kml.add_folder('aFolder')
         from editolido.geopoint import GeoPoint
         kml.add_point('aFolder', GeoPoint((0, 0), name="P1"), color="blouge")
-        self.assertEqual(kml.render(extra="what else ?", name='no name'),
+        self.assertEqual(kml.render(extra="what else ?",
+                                    name='no name',
+                                    aFolder_color="white"),
                          'aFolder 1 P1 blouge no name what else ?')
 
     def test_render_folder(self):
