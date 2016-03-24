@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import os
 import sys
 from distutils.version import StrictVersion
+import editolido
 from editolido.bootstrap_editorial import logger, tagname_from_url, \
     download_package
 
@@ -26,14 +27,14 @@ def reload_editolido(install_dir, name='editolido'):
 
 def update_editolido(install_dir, boot_url='', url='', name=None,
                      fake=False):
-    import editolido
-    reload(editolido)
     local_version = StrictVersion(editolido.__version__)
     tagname = tagname_from_url(url)
     if tagname:
         logger.info('latest remote version is %s' % tagname)
         # download when local < remote
         # or when remote is a branch (master, beta...)
+        if '.' not in tagname:
+            logger.info('branch are always downloaded')
         if '.' not in tagname or local_version < StrictVersion(tagname):
             try:
                 download_package(
