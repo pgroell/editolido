@@ -72,6 +72,9 @@ class Route(object):
     def __getitem__(self, item):
         return self.route[item]
 
+    def __nonzero__(self):
+        return bool(self.route)
+
     def split(self, max_length, converter=nm_to_rad, preserve=False,
               name="", description=""):
         """

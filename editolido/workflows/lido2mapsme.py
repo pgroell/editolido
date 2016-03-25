@@ -55,8 +55,7 @@ def lido2mapsme(action_in, params, debug=False):
         kml.add_line('ralt', alt_route)
         if params.get('Point Dégagement', PIN_NONE) != PIN_NONE:
             kml.add_points(
-                'ralt', alt_route,
-                excluded=[alt_route.route[0]] if alt_route.route else [],
+                'ralt', alt_route[1:],
                 style=params.get('Point Dégagement', PIN_PINK))
 
     if params['Afficher Ogimet']:

@@ -94,3 +94,15 @@ class TestRoute(TestCase):
         route = Route([GeoPoint((0, 0)), GeoPoint((0, 90))])
         self.assertEqual(route[0], GeoPoint((0, 0)))
         self.assertEqual(route[-1], GeoPoint((0, 90)))
+
+    def test_slice(self):
+        def generator():
+            raise StopIteration
+            # noinspection PyUnreachableCode
+            yield "dummy generator"
+        route = Route(generator())
+        self.assertFalse(route)
+        self.assertEqual([], route[1:])
+        self.assertEqual([], route[:])
+        route = Route([GeoPoint((0, 0)), GeoPoint((0, 90))])
+        self.assertEqual([GeoPoint((0, 90))], route[1:])
