@@ -104,5 +104,6 @@ class TestGeoPoint(TestCase):
 
     def test_creation_from_latphi(self):
         from editolido.geolite import latphi2latlng
-        a = GeoPoint((0.7853981633974483, -1.7453292519943295), normalizer=latphi2latlng)
+        a = GeoPoint((0.7853981633974483, -1.7453292519943295),
+                     normalizer=latphi2latlng)
         self.assertEqual(a, GeoPoint((45, -100)))

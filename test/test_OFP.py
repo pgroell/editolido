@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from cStringIO import StringIO
 from unittest import TestCase
+import mock
 import os
-import sys
 
 from editolido.ofp import OFP
 from editolido.route import Route
 from editolido.geopoint import GeoPoint, dm_normalizer
 
 DATADIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+
+# noinspection PyUnresolvedReferences
+patch_object = mock.patch.object
 
 
 class TestOFP(TestCase):
@@ -82,7 +84,8 @@ class TestOFP(TestCase):
                 GeoPoint('N4843.4E00222.8', normalizer=dm_normalizer))
 
     def test_wpt_coordinates_alternate_af011_22Mar2016(self):
-        with open(DATADIR + '/AF011_KJFK-LFPG_22Mar2016_02:45z_OFP_8_0_1.txt', 'r') as f:
+        with open(DATADIR + '/AF011_KJFK-LFPG_22Mar2016_02:45z_OFP_8_0_1.txt',
+                  'r') as f:
             ofp = OFP(f.read())
             points = list(ofp.wpt_coordinates_alternate)
             self.assertEqual(
@@ -95,18 +98,18 @@ class TestOFP(TestCase):
                 points[-1],
                 GeoPoint('N4843.4E00222.8', normalizer=dm_normalizer))
 
-    def test_missing_wpt_coordinates(self):
+    @patch_object(OFP, 'log_error')
+    def test_missing_wpt_coordinates(self, logger):
         ofp = OFP('blabla blabla')
-        out, sys.stdout = sys.stdout, StringIO()
         with self.assertRaises(SystemExit):
             list(ofp.wpt_coordinates)
-        sys.stdout = out
+        logger.assert_called_with('WPT COORDINATES not found')
 
-    def test_missing_wpt_coordinates_alternate(self):
+    @patch_object(OFP, 'log_error')
+    def test_missing_wpt_coordinates_alternate(self, logger):
         ofp = OFP('blabla blabla')
-        out, sys.stdout = sys.stdout, StringIO()
         self.assertFalse(list(ofp.wpt_coordinates_alternate))
-        sys.stdout = out
+        logger.assert_called_with('WPT COORDINATES not found')
 
     def test_missing_tracks(self):
         ofp = OFP('blabla blabla')
@@ -149,7 +152,8 @@ class TestOFP(TestCase):
         self.assertEqual(list(track.route), expected)
 
     def tests_tracks_rlat_new_format(self):
-        with open(DATADIR + '/AF009_KJFK-LFPG_18Mar2016_04:55z_OFP_12_0_1.txt', 'r') as f:
+        with open(DATADIR + '/AF009_KJFK-LFPG_18Mar2016_04:55z_OFP_12_0_1.txt',
+                  'r') as f:
             ofp = OFP(f.read())
             tracks = list(ofp.tracks)
             self.assertEqual(len(tracks), 7)
@@ -173,7 +177,8 @@ class TestOFP(TestCase):
             self.assertTrue(tracks[-1].name.endswith('Z'))
 
     def tests_tracks_with_page_break(self):
-        with open(DATADIR + '/AF011_KJFK-LFPG_22Mar2016_02:45z_OFP_8_0_1.txt', 'r') as f:
+        with open(DATADIR + '/AF011_KJFK-LFPG_22Mar2016_02:45z_OFP_8_0_1.txt',
+                  'r') as f:
             ofp = OFP(f.read())
             tracks = list(ofp.tracks)
             self.assertEqual(len(tracks), 8)
@@ -239,18 +244,17 @@ class TestOFP(TestCase):
             "AF009 KJFK-LFPG 27Mar2015 05:45z OFP 9/0/1"
         )
 
-    def test_fpl_lookup_error(self):
+    @patch_object(OFP, 'log_error')
+    def test_fpl_lookup_error(self, logger):
         ofp = OFP('')
-        out, sys.stdout = sys.stdout, StringIO()
         self.assertEqual(ofp.fpl, [])
-        sys.stdout = out
+        logger.assert_called_with('ATC FLIGHT PLAN not found')
+        logger.reset_mock()
+
         ofp = OFP('ATC FLIGHT PLANblabla')
-        output = StringIO()
-        out, sys.stdout = sys.stdout, output
         self.assertEqual(ofp.fpl, [])
-        self.assertIn('incomplete Flight Plan', output.getvalue())
-        sys.stdout = out
-        output.close()
+        logger.assert_called_with('incomplete Flight Plan')
+        logger.reset_mock()
 
     def test_fpl(self):
         with open(DATADIR + '/KJFK-LFPG 27Mar2015 05:45z.txt', 'r') as f:
@@ -275,7 +279,8 @@ class TestOFP(TestCase):
         )
 
     def test_fpl_route_af011_22Mar2016(self):
-        with open(DATADIR + '/AF011_KJFK-LFPG_22Mar2016_02:45z_OFP_8_0_1.txt', 'r') as f:
+        with open(DATADIR + '/AF011_KJFK-LFPG_22Mar2016_02:45z_OFP_8_0_1.txt',
+                  'r') as f:
             ofp = OFP(f.read())
         self.assertEqual(
             ' '.join(ofp.fpl_route),
@@ -297,7 +302,8 @@ class TestOFP(TestCase):
         )
 
     def test_lido_route_af011_22Mar2016(self):
-        with open(DATADIR + '/AF011_KJFK-LFPG_22Mar2016_02:45z_OFP_8_0_1.txt', 'r') as f:
+        with open(DATADIR + '/AF011_KJFK-LFPG_22Mar2016_02:45z_OFP_8_0_1.txt',
+                  'r') as f:
             ofp = OFP(f.read())
         self.maxDiff = None
         self.assertEqual(
@@ -322,12 +328,11 @@ class TestOFP(TestCase):
             'N4913.9E00242.9 LFPG'
         )
 
-    def test_lido_route_no_fpl(self):
+    @patch_object(OFP, 'log_error')
+    def test_lido_route_no_fpl(self, logger):
         with open(DATADIR + '/KJFK-LFPG 27Mar2015 05:45z.txt', 'r') as f:
             ofp = OFP(f.read())
         ofp.text = ofp.text.replace('ATC FLIGHT PLAN', 'ATC*FLIGHT*PLAN')
-        output = StringIO()
-        out, sys.stdout = sys.stdout, output
         self.assertEqual(
             ' '.join(ofp.lido_route),
             'KJFK GREKI MARTN EBONY ALLRY N5100.0W05000.0 N5300.0W04000.0 '
@@ -335,8 +340,7 @@ class TestOFP(TestCase):
             'OKESI BEDEK NIGIT VAPID MID SFD WAFFU HARDY XIDIL PETAX BIBAX '
             'KOLIV MOPAR N4915.7E00223.3 CRL N4913.9E00242.9 LFPG'
         )
-        sys.stdout = out
-        output.close()
+        logger.assert_called_with('ATC FLIGHT PLAN not found')
 
     def test_lido_route_with_naty(self):
         with open(DATADIR + '/AF007_KJFK-LFPG_13Mar2016_00:15z_OFP_6_0_1.txt',
@@ -350,13 +354,12 @@ class TestOFP(TestCase):
             'N4917.5E00145.4 N4910.2E00150.4 LFPG'
         )
 
-    def test_lido_route_with_naty_no_fpl(self):
+    @patch_object(OFP, 'log_error')
+    def test_lido_route_with_naty_no_fpl(self, logger):
         with open(DATADIR + '/AF007_KJFK-LFPG_13Mar2016_00:15z_OFP_6_0_1.txt',
                   'r') as f:
             ofp = OFP(f.read())
         ofp.text = ofp.text.replace('ATC FLIGHT PLAN', 'ATC*FLIGHT*PLAN')
-        output = StringIO()
-        out, sys.stdout = sys.stdout, output
         self.assertEqual(
             ' '.join(ofp.lido_route),
             'KJFK HAPIE YAHOO DOVEY N4200.0W06000.0 N4300.0W05000.0 '
@@ -364,8 +367,7 @@ class TestOFP(TestCase):
             'TAKAS ALUTA MOSIS DEKOR NERLA RUSIB BETUV JSY INGOR LUKIP '
             'KOLIV MOPAR N4910.2E00150.4 LFPG'
         )
-        sys.stdout = out
-        output.close()
+        logger.assert_called_with('ATC FLIGHT PLAN not found')
 
     def test_lido_route_with_naty_no_tracksnat(self):
         with open(DATADIR + '/AF007_KJFK-LFPG_13Mar2016_00:15z_OFP_6_0_1.txt',

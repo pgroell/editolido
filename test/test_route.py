@@ -96,7 +96,7 @@ class TestRoute(TestCase):
         self.assertEqual(route[-1], GeoPoint((0, 90)))
 
     def test_slice(self):
-        def generator():
+        def generator():  # pragma no cover
             raise StopIteration
             # noinspection PyUnreachableCode
             yield "dummy generator"

@@ -34,8 +34,8 @@ class OFP(object):
         self._infos = None
         self._fpl_route = None
 
-    @staticmethod
-    def log_error(message):
+    @classmethod
+    def log_error(cls, message):  # pragma no cover
         print message
         print "retry or send OFP to Yammer's group Maps.me"
         print "or https://github.com/flyingeek/editolido/issues"
@@ -313,9 +313,9 @@ class OFP(object):
             """
             When there is a FL or Speed change, we may have multiple
             "NATW" in the FPL, so change them all.
-            :param route: list
+            :param route: list of waypoint
             :param needle: unicode
-            :param track_points: list
+            :param track_points: list of track waypoint
             :return: False or list
             """
             route = list(route)  # copy

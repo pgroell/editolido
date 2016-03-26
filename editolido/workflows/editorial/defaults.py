@@ -17,4 +17,5 @@ params = {
     'Afficher Dégagement': True,
     'Couleur Dégagement': '',
     'Point Dégagement': PIN_PINK,
+    'Mise à jour auto': True,
 }

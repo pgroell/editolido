@@ -129,7 +129,7 @@ class GeoGridIndex(object):
                 yield point, distance
 
     @staticmethod
-    def json_filename(basename='wmogrid.json'):
+    def json_filename(basename='.wmogrid.json'):
         _dir = os.path.join(os.path.dirname(__file__), 'data')
         return os.path.join(_dir, basename)
 
