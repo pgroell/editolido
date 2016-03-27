@@ -128,6 +128,7 @@ def save_local_config(data):
         data['version'] = str(data['version'])
     with open(get_local_config_filepath(), 'w') as fd:
         json.dump(data, fd)
+    logger.info('saved to .local.cfg: %s' % data)
 
 
 def is_branch(tagname):
