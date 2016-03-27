@@ -89,9 +89,18 @@ def get_latest_version_infos(url, filename='data/.editolido.cfg.json'):
 
 def log_local_version(version, branch=None):
     if branch:
-        logger.info('local version is %s' % version)
-        logger.info('local branch status unknown, [%s] expected'
-                    % branch)
+        logger.info('local code version is %s' % version)
+        try:
+            local_infos = read_local_config()
+        except IOError:
+            logger.info('local branch status unknown, [%s] expected'
+                        % branch)
+        else:
+            if branch == local_infos['branch_release']:
+                logger.info('local branch is [%s]' % branch)
+            else:
+                logger.error('local branch is [%s] but [%s] expected'
+                            % (local_infos['branch_release'], branch))
     else:
         logger.info('local version %s up to date'
                     % version)
@@ -192,22 +201,28 @@ def update_editolido(url, *args, **kwargs):
         # or when remote is a branch (master, beta...)
         if ((branch and auto_update_is_set()) or
                 needs_update(local_infos, infos)):
+            zipfolder = '%s-%s' % (infos['name'], infos['tag'])
             try:
                 download_package(
                     zipball_url,
-                    '%s-%s' % (infos['name'], infos['tag']),
+                    zipfolder,
                     install_dir,
                     name=infos['name'],
                 )
             except requests.exceptions.RequestException:
                 log_local_version(editolido.__version__, branch=branch)
             except (IOError, OSError):
+                logger.error('attempted to install: %s' % zipball_url)
+                logger.error('zipfolder: %s' % zipfolder)
+                logger.error('install_dir: %s' % install_dir)
+                logger.error('infos: %s' % infos)
                 log_fatal_error('install failed')
                 raise
             else:
                 try:
                     reload_editolido(install_dir, infos['name'])
                 except (ImportError, AttributeError, NameError):
+                    logger.error('unable to reload editolido')
                     log_fatal_error('python error')
                 try:
                     import console  # in Editorial
