@@ -102,8 +102,7 @@ def log_local_version(version, branch=None):
                 logger.error('local branch is [%s] but [%s] expected'
                             % (local_infos['branch_release'], branch))
     else:
-        logger.info('local version %s up to date'
-                    % version)
+        logger.info('local version is %s' % version)
 
 
 def log_fatal_error(message):
@@ -210,7 +209,8 @@ def update_editolido(url, *args, **kwargs):
                     name=infos['name'],
                 )
             except requests.exceptions.RequestException:
-                log_local_version(editolido.__version__, branch=branch)
+                log_local_version(editolido.__version__,
+                                  branch=local_infos['branch_release'])
             except (IOError, OSError):
                 logger.error('attempted to install: %s' % zipball_url)
                 logger.error('zipfolder: %s' % zipfolder)
