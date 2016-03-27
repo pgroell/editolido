@@ -2,19 +2,17 @@
 
 Je sais je dois faire la doc... :-)
 
-Pour la première utilisation il faut être connecté à Internet.
-De plus à la première installation un message "module editolido manquant" apparait, il faut redémarrer Editorial en attendant une correction de ce pb.
-
 Usage:
 -----
  - Installez le worklow [Lido2Mapsme+](https://workflow.is/workflows/ea27b4ab34dc4275b954723748ce754e)
  - Installez le workflow Editorial [Lido2Mapsme+](http://www.editorial-workflows.com/workflow/5800601703153664/o7BioyJJW8o#)
  - Lancez au moins une fois l'un des deux workflow pour télécharger le module editolido
+ - Pour la première utilisation il faut être connecté à Internet.
  
 Réglages:
 --------
- - depuis le Editorial, choisissez "Edit Worflow". (icone en forme de clé en haut à droite d'Editorial, puis toucher le i sur la ligne correspondant au workflow Lido2Mapsme+)
- - Les différentes actions du workflow peuvent de déplier et permettent les réglages
+ - depuis Editorial, choisissez "Edit Worflow". (icône en forme de clé en haut à droite d'Editorial, puis toucher le i sur la ligne correspondant au workflow Lido2Mapsme+)
+ - Les différentes actions du workflow peuvent se déplier et permettent les réglages
 
 Mise à jour:
 -----------
