@@ -28,10 +28,10 @@ class Logger(object):
 
     def error(self, message):
         self.log(message, 1)
-_Logger = Logger  # update compatibility from 1.0.1b3
+_Logger = Logger  # update compatibility from 1.0.1b4
 
 logger = Logger(workflow.get_parameters().get('Log', 2L))
-VERSION = '1.0.1b3'
+VERSION = '1.0.1b4'
 DOCUMENTS = os.path.join(os.path.expanduser('~'), 'Documents')
 AUTO_UPDATE_KEY = 'Mise à jour auto'
 
