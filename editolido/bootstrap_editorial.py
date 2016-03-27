@@ -19,7 +19,7 @@ class Logger(object):
 
     @staticmethod
     def log(message, level=0):
-        threshold = workflow.get_parameters().get('Log', 2L)
+        threshold = workflow.get_parameters().get('Log', 2)
         if level == 0 or (threshold and threshold >= level):
             print(message)
 
@@ -55,12 +55,12 @@ def download_package(github_url, zip_folder, install_dir, name="editolido",
     """
     import zipfile
     from contextlib import closing
-    from cStringIO import StringIO
+    from io import BytesIO
     logger.info('downloading %s' % github_url)
     try:
         r = requests.get(github_url, verify=True, stream=True, timeout=timeout)
         r.raise_for_status()
-        with closing(r), zipfile.ZipFile(StringIO(r.content)) as z:
+        with closing(r), zipfile.ZipFile(BytesIO(r.content)) as z:
             base = '%s/%s/' % (zip_folder, name)
             logger.info('extracting data')
             if not fake:
@@ -251,6 +251,11 @@ def install_editolido(url, *args, **kwargs):
         try:
             # noinspection PyUnresolvedReferences
             import editolido
+            try:
+                from importlib import reload
+            except ImportError:
+                # noinspection PyUnresolvedReferences
+                from imp import reload
             reload(editolido)
         except ImportError:  # pragma no cover
             console.alert(

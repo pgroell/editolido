@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import unicode_literals, print_function
 
 from editolido.geoindex import GeoGridIndex
 from editolido.geolite import km_to_rad, rad_to_km
@@ -14,8 +14,8 @@ def ogimet_route(route, segment_size=300, debug=False,
     end = route[-1]
 
     def print_ogimet(points):
-        print 'Route Ogimet (%s): %s' % (
-            len(points), '_'.join([p.name for p in points]))
+        print('Route Ogimet (%s): %s' % (
+            len(points), '_'.join([p.name for p in points])))
 
     # noinspection PyShadowingNames
     def build_ogimet(default_step):

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import unicode_literals, print_function
 import itertools
 import re
 import sys
@@ -36,9 +36,9 @@ class OFP(object):
 
     @classmethod
     def log_error(cls, message):  # pragma no cover
-        print message
-        print "retry or send OFP to Yammer's group Maps.me"
-        print "or https://github.com/flyingeek/editolido/issues"
+        print(message)
+        print("retry or send OFP to Yammer's group Maps.me")
+        print("or https://github.com/flyingeek/editolido/issues")
 
     @staticmethod
     def extract(text, start, end, end_is_optional=True, inclusive=False):
