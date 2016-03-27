@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import os
+
+
+def get_abspath(relpath):
+    return os.path.join(os.path.expanduser('~/Documents'), relpath)
 
 
 def lido2mapsme(action_in, params, debug=False):
@@ -70,3 +75,115 @@ def lido2mapsme(action_in, params, debug=False):
         rmain_color=params['Couleur Route'] or 'FFDA25A8',
         ralt_color=params.get('Couleur Dégagement', 'FFFF00FF')
     )
+
+
+def load_or_save(action_in, save=None, reldir=None, filename=None):
+    """
+    Load/Save action input
+    :param action_in: workflow action input
+    :param save: bool switch to save or not
+    :param reldir: relative path to folder containing the saved elements
+    :param filename: filename to use (Python template format)
+    :return: unicode action_out
+
+    Usage from Editorial is:
+
+    # -*- coding: utf-8 -*-
+    from __future__ import unicode_literals
+    import workflow
+    from editolido.workflows.lido2mapsme import load_or_save
+
+
+    params = workflow.get_parameters()
+    filename = params.get('Nom', '') or '{flight}_{departure}-{destination}_{date}_{datetime:%H:%M}z_OFP_{ofp}.txt'
+    action_in = workflow.get_input()
+    save = params.get('Sauvegarder', False)
+    reldir = params.get('Dossier', '') or '_lido2mapsme_/data'
+    workflow.set_output(load_or_save(action_in, save=save, reldir=reldir, filename=filename))
+    """
+    # noinspection PyUnresolvedReferences
+    import console  # EDITORIAL module
+    # noinspection PyUnresolvedReferences
+    import dialogs  # EDITORIAL module
+    # noinspection PyUnresolvedReferences
+    import editor  # EDITORIAL module
+    # noinspection PyUnresolvedReferences
+    import workflow
+
+    if save and action_in:
+        from editolido.ofp import OFP
+        ofp = OFP(action_in)
+        relpath = os.path.join(reldir,
+                               filename.format(**ofp.infos).replace('/', '_'))
+        absdir = os.path.dirname(get_abspath(relpath))
+        if not os.path.exists(absdir):
+            os.makedirs(absdir)
+        editor.set_file_contents(relpath, action_in.encode('utf-8'))
+        return action_in
+    elif not action_in:  # Load
+        try:
+            files = os.listdir(get_abspath(reldir))
+            if not files:
+                raise OSError
+        except OSError:
+            console.alert('Aucune sauvegarde disponible',
+                          'sauvegarder au moins une fois',
+                          'Annuler',
+                          hide_cancel_button=True)
+            workflow.stop()
+            raise KeyboardInterrupt
+        else:
+            filename = dialogs.list_dialog('Choisir un fichier', files)
+            if not filename:
+                workflow.stop()
+                raise KeyboardInterrupt
+            relpath = os.path.join(reldir, filename)
+            content = editor.get_file_contents(relpath)
+            return content.decode('utf-8') if content else ''
+
+
+def save_kml(content, save=None, reldir=None, filename=None, workflow_in=None):
+    """
+
+    :param content:
+    :param save:
+    :param reldir:
+    :param filename:
+    :param workflow_in:
+    :return:
+
+    Usage from Editorial is:
+
+    # -*- coding: utf-8 -*-
+    from __future__ import unicode_literals
+    import workflow
+    from editolido.workflows.lido2mapsme import save_kml
+
+
+    params = workflow.get_parameters()
+    filename = params.get('Nom', '') or  '{flight}_{departure}-{destination}_{date}_{datetime:%H:%M}z_OFP_{ofp}.kml'
+    workflow_in = workflow.get_variable('workflow_in')
+    save = params.get('Sauvegarder', False)
+    content = params.get('Contenu', '') or workflow.get_input()
+    reldir = params.get('Dossier', '') or '_lido2mapsme_/KML'
+    workflow.set_output(save_kml(content, save=save, reldir=reldir, filename=filename, workflow_in=workflow_in))
+    """
+    # noinspection PyUnresolvedReferences
+    import console  # EDITORIAL module
+    # noinspection PyUnresolvedReferences
+    import editor  # EDITORIAL module
+    # noinspection PyUnresolvedReferences
+    import workflow
+
+    if save:
+        from editolido.ofp import OFP
+        ofp = OFP(workflow_in)
+        relpath = os.path.join(reldir,
+                               filename.format(**ofp.infos).replace('/', '_'))
+        absdir = os.path.dirname(get_abspath(relpath))
+        if content:
+            if not os.path.exists(absdir):
+                os.makedirs(absdir)
+            editor.set_file_contents(relpath,
+                                     content.encode('utf-8'))
+    return content

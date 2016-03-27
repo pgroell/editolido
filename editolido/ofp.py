@@ -88,16 +88,9 @@ class OFP(object):
             end_is_optional=end_is_optional, inclusive=inclusive)
 
     @property
-    def filename(self):
-        # allows slash in filename by using unicode char
-        safe_ofp = self.infos['ofp'].replace('/', '_')
-        return "{flight} {departure}-{destination} {date} {datetime:%H:%M}z " \
-               "OFP {safe_ofp}.txt".format(safe_ofp=safe_ofp, **self.infos)
-
-    @property
-    def description(self):
-        return "{flight} {departure}-{destination} {date} {datetime:%H:%M}z " \
-               "OFP {ofp}".format(**self.infos)
+    def description(self, tpl="{flight} {departure}-{destination} {date} "
+                              "{datetime:%H:%M}z OFP {ofp}"):
+        return tpl.format(**self.infos)
 
     @staticmethod
     def wpt_coordinates_generator(text):

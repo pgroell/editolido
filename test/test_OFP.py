@@ -228,14 +228,6 @@ class TestOFP(TestCase):
         self.assertEqual(dt.tzname(), 'UTC')
         self.assertEqual(dt.utcoffset(), timedelta(0))
 
-    def test_filename(self):
-        with open(DATADIR + '/KJFK-LFPG 27Mar2015 05:45z.txt', 'r') as f:
-            ofp = OFP(f.read())
-        self.assertEqual(
-            ofp.filename,
-            "AF009 KJFK-LFPG 27Mar2015 05:45z OFP 9_0_1.txt"
-        )
-
     def test_description(self):
         with open(DATADIR + '/KJFK-LFPG 27Mar2015 05:45z.txt', 'r') as f:
             ofp = OFP(f.read())
