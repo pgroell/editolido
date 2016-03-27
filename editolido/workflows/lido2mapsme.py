@@ -73,7 +73,7 @@ def lido2mapsme(action_in, params, debug=False):
         ogimet_color=params['Couleur Ogimet'] or '50FF0000',
         greatcircle_color=params['Couleur Ortho'] or '5F1478FF',
         rmain_color=params['Couleur Route'] or 'FFDA25A8',
-        ralt_color=params.get('Couleur Dégagement', 'FFFF00FF')
+        ralt_color=params.get('Couleur Dégagement', '') or 'FFFF00FF'
     )
 
 
