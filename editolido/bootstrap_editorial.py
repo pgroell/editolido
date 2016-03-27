@@ -30,7 +30,7 @@ class _Logger(object):
         self.log(message, 1)
 
 logger = _Logger(workflow.get_parameters().get('Log', 2L))
-VERSION = '1.0.1b1'
+VERSION = '1.0.1b2'
 DOCUMENTS = os.path.join(os.path.expanduser('~'), 'Documents')
 AUTO_UPDATE_KEY = 'Mise à jour auto'
 
