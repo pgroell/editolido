@@ -5,3 +5,4 @@ dist
 MANIFEST
 .coveralls.yml
 .tox
+.pycharmrc
