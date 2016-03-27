@@ -262,7 +262,7 @@ class TestCoreUpdateAutoMode(TestCase):
             call('remote version: 1.0.0b6'),
             call('remote zipball url: https://github.com/flyingeek'
                  '/editolido/archive/1.0.0b6.zip'),
-            call(u'local version %s up to date' % VERSION)]
+            call(u'local version is %s' % VERSION)]
         self.assertEqual(self.logger.info.mock_calls, expected)
         self.download_package.assert_not_called()
 
@@ -290,7 +290,7 @@ class TestCoreUpdateAutoMode(TestCase):
         update_editolido(param)
         self.logger.info.assert_any_call('remote version: 1.0.0b7')
         # consider up to date if same version
-        self.logger.info.assert_any_call('local version %s up to date'
+        self.logger.info.assert_any_call('local version is %s'
                                          % VERSION)
         self.download_package.assert_not_called()
         self.logger.error.assert_not_called()
@@ -515,6 +515,16 @@ class TestCoreUpdateAutoOFF(TestCase):
         update_editolido(param)
         self.assertFalse(self.download_package.called)
         self.logger.error.assert_not_called()
+        call = mock.call
+        from editolido.bootstrap_editorial import VERSION
+        expected = [
+            call(u'auto update is disabled'),
+            call('remote version: master'),
+            call('remote zipball url: https://github.com/flyingeek'
+                 '/editolido/archive/master.zip'),
+            call(u'local code version is %s' % VERSION),
+            call(u'local branch is [master]'),]
+        self.assertEqual(self.logger.info.mock_calls, expected)
 
     def test_update_editolido_from_branch(self):
         from editolido.core import update_editolido, infos_from_giturl
