@@ -331,7 +331,7 @@ class TestCoreUpdateAutoMode(TestCase):
         self.json.return_value = dict(url=remote)
         update_editolido(param)
         self.logger.info.assert_any_call('editolido [master] %s installed'
-                                          % VERSION)
+                                         % VERSION)
         self.assertTrue(self.download_package.called)
         self.logger.error.assert_not_called()
         self.logger.info.assert_any_call('remote version: master')
@@ -413,7 +413,7 @@ class TestCoreUpdateAutoOFF(TestCase):
         local = ('https://github.com/flyingeek/editolido/archive/%s.zip'
                  % VERSION)
         remote = ('https://github.com/flyingeek/editolido/archive/%s.zip'
-                 % VERSION)
+                  % VERSION)
         param = ''
         self.json.return_value = dict(url=remote)
         self.cfg.return_value = infos_from_giturl(local)
@@ -523,7 +523,7 @@ class TestCoreUpdateAutoOFF(TestCase):
             call('remote zipball url: https://github.com/flyingeek'
                  '/editolido/archive/master.zip'),
             call(u'local code version is %s' % VERSION),
-            call(u'local branch is [master]'),]
+            call(u'local branch is [master]'), ]
         self.assertEqual(self.logger.info.mock_calls, expected)
 
     def test_update_editolido_from_branch(self):

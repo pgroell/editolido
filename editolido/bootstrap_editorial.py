@@ -16,11 +16,11 @@ except ImportError:
 
 
 class Logger(object):
-    def __init__(self, threshold):
-        self.threshold = threshold
 
-    def log(self, message, level=0):
-        if level == 0 or (self.threshold and self.threshold >= level):
+    @staticmethod
+    def log(message, level=0):
+        threshold = workflow.get_parameters().get('Log', 2L)
+        if level == 0 or (threshold and threshold >= level):
             print(message)
 
     def info(self, message):
@@ -28,9 +28,8 @@ class Logger(object):
 
     def error(self, message):
         self.log(message, 1)
-_Logger = Logger  # update compatibility from 1.0.1b4
 
-logger = Logger(workflow.get_parameters().get('Log', 2L))
+logger = Logger()
 VERSION = '1.0.1b4'
 DOCUMENTS = os.path.join(os.path.expanduser('~'), 'Documents')
 AUTO_UPDATE_KEY = 'Mise à jour auto'
@@ -138,7 +137,7 @@ def save_local_config(data, module_name=None):
     if isinstance(data['version'], StrictVersion):
         data['version'] = str(data['version'])
     filename = get_local_config_filepath(module_name=module_name)
-    logger.info('saving to %s: %s' % (filename,data))
+    logger.info('saving to %s: %s' % (filename, data))
     with open(filename, 'w') as fd:
         json.dump(data, fd)
 
