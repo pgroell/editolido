@@ -112,21 +112,32 @@ def get_install_dir():
     return DOCUMENTS
 
 
-def get_local_config_filepath(name='data/editolido.local.cfg.json'):
-    # Editorial does not leave file in the Document directory
-    # this does not works
-    # name = name.replace('/', os.path.sep)
-    # return os.path.join(os.path.dirname(os.path.realpath(__file__)), name)
-
-    fp = os.path.join(DOCUMENTS, 'editolido/' + name)
+def get_local_config_filepath(filename='editolido.local.cfg.json',
+                              module_name=None):
+    """
+    return the .local.cfg filename
+    :param filename: the filename...
+    :param module_name: useful only when loading bootstrap from github
+    :return:
+    """
+    _dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
+    if DOCUMENTS in _dir:
+        fp = os.path.join(_dir, filename)
+    else:
+        # bootstrap loaded and executed from github
+        if module_name is None:
+            module_name = 'editolido'
+        fp = os.path.join(DOCUMENTS, module_name)
+        fp = os.path.join(fp, 'data')
+        fp = os.path.join(fp, filename)
     logger.info('.local.cfg file: %s' % fp)
     return fp
 
 
-def save_local_config(data):
+def save_local_config(data, module_name=None):
     if isinstance(data['version'], StrictVersion):
         data['version'] = str(data['version'])
-    with open(get_local_config_filepath(), 'w') as fd:
+    with open(get_local_config_filepath(module_name=module_name), 'w') as fd:
         json.dump(data, fd)
     logger.info('saved to .local.cfg: %s' % data)
 
@@ -250,7 +261,7 @@ def install_editolido(url, *args, **kwargs):
                 hide_cancel_button=True, )
             raise KeyboardInterrupt
         else:
-            save_local_config(infos)
+            save_local_config(infos, module_name=infos['name'])
             if infos['version'] is None:
                 console.hud_alert(
                     'editolido [%s] %s installé'
