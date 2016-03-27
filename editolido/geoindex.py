@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-# noinspection PyUnresolvedReferences
-from six.moves.urllib.request import urlopen
+try:
+    # noinspection PyCompatibility
+    from urllib.request import urlopen
+except ImportError:
+    # noinspection PyCompatibility
+    from urllib2 import urlopen
 import csv
 import json
 import os

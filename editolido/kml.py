@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from six import itervalues, iterkeys
 from collections import OrderedDict
 import os
 
@@ -122,7 +121,7 @@ class KMLGenerator(object):
         :return: unicode
         """
         return self.template.format(
-            styles=''.join(itervalues(self.styles)).format(**kwargs),
+            styles=''.join(self.styles.values()).format(**kwargs),
             folders=self.render_folders(),
             **kwargs
         )
@@ -145,4 +144,4 @@ class KMLGenerator(object):
         :return: str
         """
         return '\n'.join(
-            [self.render_folder(folder) for folder in iterkeys(self.folders)])
+            [self.render_folder(folder) for folder in self.folders])
