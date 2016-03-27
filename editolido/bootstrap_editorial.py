@@ -121,25 +121,25 @@ def get_local_config_filepath(filename='editolido.local.cfg.json',
     :return:
     """
     _dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-    if DOCUMENTS in _dir:
+    if get_install_dir() in _dir:
         fp = os.path.join(_dir, filename)
     else:
         # bootstrap loaded and executed from github
         if module_name is None:
             module_name = 'editolido'
-        fp = os.path.join(DOCUMENTS, module_name)
+        fp = os.path.join(get_install_dir(), module_name)
         fp = os.path.join(fp, 'data')
         fp = os.path.join(fp, filename)
-    logger.info('.local.cfg file: %s' % fp)
     return fp
 
 
 def save_local_config(data, module_name=None):
     if isinstance(data['version'], StrictVersion):
         data['version'] = str(data['version'])
-    with open(get_local_config_filepath(module_name=module_name), 'w') as fd:
+    filename = get_local_config_filepath(module_name=module_name)
+    logger.info('saving to %s: %s' % (filename,data))
+    with open(filename, 'w') as fd:
         json.dump(data, fd)
-    logger.info('saved to .local.cfg: %s' % data)
 
 
 def is_branch(tagname):

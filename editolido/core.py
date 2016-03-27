@@ -144,15 +144,16 @@ def update_editolido(url, *args, **kwargs):
         params_infos = infos_from_giturl(url)
     else:
         params_infos, url = latest_release(url)
-    infos = params_infos
     branch = params_infos['branch_release']
     zipball_url = url
     try:
         local_infos = read_local_config()
     except IOError:
-        local_infos = params_infos.copy()
+        logger.error('could not read %s' % get_local_config_filepath())
+        local_infos, _ = latest_release(url)
         local_infos['version'] = StrictVersion(editolido.__version__)
         local_infos['tag'] = editolido.__version__
+    infos = params_infos
     if branch:
         # it's a branch, no need to fetch remote data
         pass
@@ -183,7 +184,7 @@ def update_editolido(url, *args, **kwargs):
     logger.info('remote version: %s' % infos['tag'])
     logger.info('remote zipball url: %s' % zipball_url)
 
-    if not infos['tag']:
+    if not infos['tag'] or not infos['name']:
         logger.error('invalid url %s' % zipball_url)
         logger.info('local version is %s' % editolido.__version__)
     else:
@@ -193,7 +194,7 @@ def update_editolido(url, *args, **kwargs):
                 needs_update(local_infos, infos)):
             try:
                 download_package(
-                    url,
+                    zipball_url,
                     '%s-%s' % (infos['name'], infos['tag']),
                     install_dir,
                     name=infos['name'],
@@ -202,6 +203,7 @@ def update_editolido(url, *args, **kwargs):
                 log_local_version(editolido.__version__, branch=branch)
             except (IOError, OSError):
                 log_fatal_error('install failed')
+                raise
             else:
                 try:
                     reload_editolido(install_dir, infos['name'])

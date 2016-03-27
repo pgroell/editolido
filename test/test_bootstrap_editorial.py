@@ -281,6 +281,11 @@ class TestLogger(TestCase):
 
 
 class TestBootstrapEditorialLocalConfig(TestCase):
+    def setUp(self):
+        patcher1 = mock.patch('editolido.bootstrap_editorial.logger')
+        self.logger = patcher1.start()
+        self.addCleanup(patcher1.stop)
+
     def test_get_local_config_filepath(self):
         from editolido.bootstrap_editorial import get_local_config_filepath
         self.assertTrue(get_local_config_filepath())

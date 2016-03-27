@@ -164,7 +164,7 @@ class TestCore(TestCase):
         self.assertEqual(data['version'], StrictVersion('1.0.0b7'))
 
 
-class TestCoreUpdate(TestCase):
+class TestCoreUpdateAutoMode(TestCase):
     def setUp(self):
         # Create a temporary directory
         self.test_dir = tempfile.mkdtemp()
@@ -184,8 +184,24 @@ class TestCoreUpdate(TestCase):
         self.json = patcher3.start()
         self.addCleanup(patcher3.stop)
         patcher4 = mock.patch('editolido.core.save_local_config')
-        self.cfg = patcher4.start()
+        self.cfg_write = patcher4.start()
         self.addCleanup(patcher4.stop)
+        patcher5 = mock.patch('editolido.core.logger')
+        self.logger = patcher5.start()
+        self.addCleanup(patcher5.stop)
+        patcher6 = mock.patch('editolido.bootstrap_editorial.workflow')
+        self.workflow = patcher6.start()
+        patcher7 = mock.patch('editolido.core.read_local_config')
+        self.cfg = patcher7.start()
+        self.addCleanup(patcher7.stop)
+        from editolido.bootstrap_editorial import AUTO_UPDATE_KEY
+        self.workflow.get_parameters.return_value = {AUTO_UPDATE_KEY: True}
+        self.addCleanup(patcher6.stop)
+
+    def filename(self, filename):
+        kall = self.download_package.mock_calls[0]
+        _, args, kwargs = kall
+        return args[0], filename
 
     def test_get_install_dir(self):
         from editolido.core import get_install_dir
@@ -195,238 +211,320 @@ class TestCoreUpdate(TestCase):
         from editolido.core import reload_editolido
         reload_editolido(self.test_dir)
 
-    @mock.patch('editolido.core.logger')
-    def test_update_editolido_empty_url(self, logger):
-        from editolido.core import update_editolido
-        self.json.return_value = dict(
-            version='1.0.0b7',
-            url='https://github.com/flyingeek/editolido/archive/1.0.0b7.zip')
-        update_editolido('')
+    def test_update_editolido_empty_url_up_to_date(self):
+        from editolido.core import update_editolido, infos_from_giturl
+        from editolido.bootstrap_editorial import VERSION
+        local = ('https://github.com/flyingeek/editolido/archive/%s.zip'
+                 % VERSION)
+        remote = local
+        param = ''
+        self.json.return_value = dict(url=remote)
+        self.cfg.return_value = infos_from_giturl(local)
+        update_editolido(param)
+        self.logger.error.assert_not_called()
         self.download_package.assert_not_called()  # up to date
-        logger.error.assert_not_called()
-        self.json.return_value = dict(
-            version='99.99.99',
-            url='https://github.com/flyingeek/editolido/archive/99.99.99.zip')
-        update_editolido('')
+
+    def test_update_editolido_empty_url_needs_update(self):
+        from editolido.core import update_editolido, infos_from_giturl
+        local = 'https://github.com/flyingeek/editolido/archive/1.0.0b7.zip'
+        remote = 'https://github.com/flyingeek/editolido/archive/1.0.0b8.zip'
+        param = ''
+        self.json.return_value = dict(url=remote)
+        self.cfg.return_value = infos_from_giturl(local)
+        update_editolido(param)
         self.assertTrue(self.download_package.called)
-        logger.error.assert_not_called()
+        self.logger.error.assert_not_called()
 
-    @mock.patch('editolido.core.logger')
-    def test_update_editolido_bad_url(self, logger):
-        from editolido.core import update_editolido
-        self.json.return_value = dict(
-            version='1.0.0b7',
-            url='https://github.com/flyingeek/editolido/archive/1.0.0b7.zip')
-        update_editolido('http://www.example.com')
-        self.download_package.assert_not_called()
-        logger.error.assert_called_with('invalid url http://www.example.com')
-
-    @mock.patch('editolido.core.logger')
-    def test_update_editolido(self, logger):
-        from editolido.core import update_editolido
-        from editolido.bootstrap_editorial import VERSION
-        self.json.return_value = dict(
-            version='1.0.0b7',
-            url='https://github.com/flyingeek/editolido/archive/1.0.0b7.zip')
-        url = "https://github.com/flyingeek/editolido/archive/1.0.0b7.zip"
-        update_editolido(url)
-        expected = [
-            mock.call('remote version: 1.0.0b7'),
-            mock.call('remote zipball url: https://github.com/flyingeek'
-                      '/editolido/archive/1.0.0b7.zip'),
-            mock.call('local version {0} up to date'.format(VERSION)), ]
-        self.assertTrue(logger.info.mock_calls == expected)
-        self.download_package.assert_not_called()
-
-    @mock.patch('editolido.core.read_local_config')
-    @mock.patch('editolido.bootstrap_editorial.workflow')
-    @mock.patch('editolido.core.logger')
-    def test_update_editolido_using_branch(self, logger, workflow, cfg):
+    def test_update_editolido_bad_url(self):
         from editolido.core import update_editolido, infos_from_giturl
-        from editolido.bootstrap_editorial import VERSION, AUTO_UPDATE_KEY
-        workflow.get_parameters.return_value = {AUTO_UPDATE_KEY: False}
-        url = "https://github.com/flyingeek/editolido/archive/master.zip"
-        cfg.return_value = infos_from_giturl(url)
-        self.json.return_value = dict(
-            version='1.0.0b7',
-            url='https://github.com/flyingeek/editolido/archive/1.0.0b7.zip')
-        update_editolido(url)
-        expected = [
-            mock.call(u'auto update is disabled'),
-            mock.call('remote version: master'),
-            mock.call('remote zipball url: https://github.com/flyingeek'
-                      '/editolido/archive/master.zip'),
-            mock.call('local version is {0}'.format(VERSION)),
-            mock.call('local branch status unknown, [master] expected')]
-        self.assertEqual(logger.info.mock_calls, expected)
+        local = 'https://github.com/flyingeek/editolido/archive/1.0.0b7.zip'
+        remote = 'https://github.com/flyingeek/editolido/archive/1.0.0b8.zip'
+        param = 'http://www.example.com'
+        self.json.return_value = dict(url=remote)
+        self.cfg.return_value = infos_from_giturl(local)
+        update_editolido(param)
         self.download_package.assert_not_called()
+        self.logger.error.assert_called_with(
+            'invalid url http://www.example.com')
 
-    @mock.patch('editolido.core.read_local_config')
-    @mock.patch('editolido.core.logger')
-    def test_update_editolido_bad_json(self, logger, cfg):
+    def test_update_editolido_bad_json(self):
         from editolido.core import update_editolido, infos_from_giturl
         from editolido.bootstrap_editorial import VERSION
+        local = 'https://github.com/flyingeek/editolido/archive/1.0.0b7.zip'
+        remote = 'https://github.com/flyingeek/editolido/archive/invalid.zip'
+        param = 'https://github.com/flyingeek/editolido/archive/1.0.0b6.zip'
         call = mock.call
-        self.json.return_value = dict(
-            version='invalid',
-            url='https://github.com/flyingeek/editolido/archive/invalid.zip')
-        url = "https://github.com/flyingeek/editolido/archive/1.0.0b6.zip"
-        cfg.return_value = infos_from_giturl(
-            "https://github.com/flyingeek/editolido/archive/1.0.0b7.zip")
-        update_editolido(url)
-        self.assertIn('json rejected', repr(logger.error.call_args))
+        self.json.return_value = dict(url=remote)
+        self.cfg.return_value = infos_from_giturl(local)
+        update_editolido(param)
+        self.assertIn('json rejected', repr(self.logger.error.call_args))
         expected = [
             call('remote version: 1.0.0b6'),
             call('remote zipball url: https://github.com/flyingeek'
                  '/editolido/archive/1.0.0b6.zip'),
             call(u'local version %s up to date' % VERSION)]
-        self.assertEqual(logger.info.mock_calls, expected)
+        self.assertEqual(self.logger.info.mock_calls, expected)
         self.download_package.assert_not_called()
 
-    @mock.patch('editolido.core.read_local_config')
-    @mock.patch('editolido.core.logger')
-    def test_update_editolido_params_greater_json(self, logger, cfg):
+    def test_update_editolido_json_greater(self):
         from editolido.core import update_editolido, infos_from_giturl
-        self.json.return_value = dict(
-            version='1.0.0b7',
-            url='https://github.com/flyingeek/editolido/archive/1.0.0b7.zip')
-        url = "https://github.com/flyingeek/editolido/archive/1.0.0b8.zip"
-        cfg.return_value(infos_from_giturl(
-            'https://github.com/flyingeek/editolido/archive/1.0.0b7.zip'))
-        update_editolido(url)
-        logger.info.assert_any_call('remote version: 1.0.0b8')
+        local = 'https://github.com/flyingeek/editolido/archive/1.0.0b7.zip'
+        remote = 'https://github.com/flyingeek/editolido/archive/1.0.0b8.zip'
+        param = 'https://github.com/flyingeek/editolido/archive/1.0.0b6.zip'
+        self.json.return_value = dict(url=remote)
+        self.cfg.return_value = infos_from_giturl(local)
+        update_editolido(param)
+        self.logger.info.assert_any_call('remote version: 1.0.0b8')
+        self.logger.error.assert_not_called()
         self.assertTrue(self.download_package.called)
+        self.assertIn(*self.filename(remote))
 
-    @mock.patch('editolido.core.read_local_config')
-    @mock.patch('editolido.core.logger')
-    def test_update_editolido_json_greater_params(self, logger, cfg):
+    def test_update_editolido_same_version(self):
         from editolido.core import update_editolido, infos_from_giturl
-        self.json.return_value = dict(
-            version='1.0.0b8',
-            url='https://github.com/flyingeek/editolido/archive/1.0.0b8.zip')
-        url = "https://github.com/flyingeek/editolido/archive/1.0.0b7.zip"
-        cfg.return_value(infos_from_giturl(url))
-        update_editolido(url)
-        logger.info.assert_any_call('remote version: 1.0.0b8')
-        self.assertTrue(self.download_package.called)
-
-    @mock.patch('editolido.bootstrap_editorial.workflow')
-    @mock.patch('editolido.core.logger')
-    def test_update_editolido_update_logic(self, logger, workflow):
-        from editolido.bootstrap_editorial import VERSION, AUTO_UPDATE_KEY
-        from editolido.core import update_editolido
-        workflow.get_parameters.return_value = {AUTO_UPDATE_KEY: True}
-        self.json.return_value = dict(
-            version='99.99.99',
-            url='https://github.com/flyingeek/editolido/archive/99.99.99.zip')
-        url = "https://github.com/flyingeek/editolido/archive/1.0.0b7.zip"
-        update_editolido(url)
-        # install from remote when greater than current
-        logger.info.assert_any_call('editolido module %s installed' % VERSION)
-        self.assertTrue(self.download_package.called)
-        self.download_package.reset_mock()
-        logger.reset_mock()
-
-        self.json.return_value = dict(
-            version=VERSION,
-            url='https://github.com/flyingeek/editolido/archive/%s.zip'
-                % VERSION)
-        url = "https://github.com/flyingeek/editolido/archive/%s.zip" % VERSION
-        update_editolido(url)
+        from editolido.bootstrap_editorial import VERSION
+        local = 'https://github.com/flyingeek/editolido/archive/1.0.0b7.zip'
+        remote = 'https://github.com/flyingeek/editolido/archive/1.0.0b7.zip'
+        param = 'https://github.com/flyingeek/editolido/archive/1.0.0b6.zip'
+        self.json.return_value = dict(url=remote)
+        self.cfg.return_value = infos_from_giturl(local)
+        update_editolido(param)
+        self.logger.info.assert_any_call('remote version: 1.0.0b7')
         # consider up to date if same version
-        logger.info.assert_any_call('local version %s up to date' % VERSION)
+        self.logger.info.assert_any_call('local version %s up to date'
+                                         % VERSION)
         self.download_package.assert_not_called()
-        self.download_package.reset_mock()
-        logger.reset_mock()
+        self.logger.error.assert_not_called()
 
-        url = "https://github.com/flyingeek/editolido/archive/99.99.99.zip"
-        update_editolido(url)
-        # update from URL if bigger than current
-        logger.info.assert_any_call('editolido module %s installed' % VERSION)
+    def test_update_editolido_url_param_greater(self):
+        from editolido.core import update_editolido, infos_from_giturl
+        local = 'https://github.com/flyingeek/editolido/archive/1.0.0b7.zip'
+        remote = 'https://github.com/flyingeek/editolido/archive/1.0.0b8.zip'
+        param = "https://github.com/flyingeek/editolido/archive/1.0.0b8.zip"
+        self.json.return_value = dict(url=remote)
+        self.cfg.return_value = infos_from_giturl(local)
+        update_editolido(param)
+        self.logger.info.assert_any_call('remote version: 1.0.0b8')
+        self.logger.error.assert_not_called()
         self.assertTrue(self.download_package.called)
-        self.download_package.reset_mock()
-        logger.reset_mock()
+        self.assertIn(*self.filename(param))
 
-        self.json.return_value = dict(
-            version=VERSION,
-            url="https://github.com/flyingeek/editolido/archive/%s.zip"
-                % VERSION)
-        url = "https://github.com/flyingeek/editolido/archive/master.zip"
-        update_editolido(url)
-        # update if branch in URL
-        logger.info.assert_any_call('editolido [master] %s installed'
-                                    % VERSION)
+    def test_update_editolido_params_greater_json(self):
+        from editolido.core import update_editolido, infos_from_giturl
+        local = 'https://github.com/flyingeek/editolido/archive/1.0.0b7.zip'
+        remote = "https://github.com/flyingeek/editolido/archive/1.0.0b7.zip"
+        param = 'https://github.com/flyingeek/editolido/archive/1.0.0b9.zip'
+        self.cfg.return_value = infos_from_giturl(local)
+        self.json.return_value = dict(url=remote)
+        update_editolido(param)
+        self.logger.info.assert_any_call('remote version: 1.0.0b9')
+        self.logger.error.assert_not_called()
         self.assertTrue(self.download_package.called)
-        self.download_package.reset_mock()
-        logger.reset_mock()
+        self.assertIn(*self.filename(param))
 
-    @mock.patch('editolido.bootstrap_editorial.workflow')
-    @mock.patch('editolido.core.logger')
-    def test_update_editolido_update_logic_not_auto(self, logger, workflow):
-        from editolido.core import update_editolido
-        from editolido.bootstrap_editorial import VERSION, AUTO_UPDATE_KEY
-        workflow.get_parameters.return_value = {AUTO_UPDATE_KEY: False}
-        self.json.return_value = dict(
-            version='99.99.99',
-            url="https://github.com/flyingeek/editolido/archive/99.99.99.zip")
-        url = "https://github.com/flyingeek/editolido/archive/{0}.zip"\
-            .format(VERSION)
-        update_editolido(url)
-        # does not install current version
+    def test_update_editolido_to_branch(self):
+        from editolido.bootstrap_editorial import VERSION
+        from editolido.core import update_editolido, infos_from_giturl
+        remote = "https://github.com/flyingeek/editolido/archive/99.99.99.zip"
+        local = 'https://github.com/flyingeek/editolido/archive/1.0.0b7.zip'
+        param = 'https://github.com/flyingeek/editolido/archive/master.zip'
+        self.cfg.return_value = infos_from_giturl(local)
+        self.json.return_value = dict(url=remote)
+        update_editolido(param)
+        self.logger.info.assert_any_call('editolido [master] %s installed'
+                                          % VERSION)
+        self.assertTrue(self.download_package.called)
+        self.logger.error.assert_not_called()
+        self.logger.info.assert_any_call('remote version: master')
+        self.assertTrue(self.download_package.called)
+        self.assertIn(*self.filename(param))
+
+    def test_update_lido_logic_same_branch(self):
+        from editolido.core import update_editolido, infos_from_giturl
+        remote = "https://github.com/flyingeek/editolido/archive/99.99.99.zip"
+        local = 'https://github.com/flyingeek/editolido/archive/master.zip'
+        param = 'https://github.com/flyingeek/editolido/archive/master.zip'
+        self.cfg.return_value = infos_from_giturl(local)
+        self.json.return_value = dict(url=remote)
+        update_editolido(param)
+        self.logger.info.assert_any_call('remote version: master')
+        self.logger.error.assert_not_called()
+        self.assertTrue(self.download_package.called)
+        self.assertIn(*self.filename(param))
+
+    def test_update_lido_logic_from_branch(self):
+        from editolido.core import update_editolido, infos_from_giturl
+        remote = "https://github.com/flyingeek/editolido/archive/99.99.99.zip"
+        local = 'https://github.com/flyingeek/editolido/archive/master.zip'
+        param = 'https://github.com/flyingeek/editolido/archive/1.0.0b7.zip'
+        self.cfg.return_value = infos_from_giturl(local)
+        self.json.return_value = dict(url=remote)
+        update_editolido(param)
+        self.assertTrue(self.download_package.called)
+        self.assertTrue(self.download_package.called)
+        self.logger.info.assert_any_call('remote version: 99.99.99')
+        self.logger.error.assert_not_called()
+        self.assertTrue(self.download_package.called)
+        self.assertIn(*self.filename(remote))
+
+
+class TestCoreUpdateAutoOFF(TestCase):
+    def setUp(self):
+        # Create a temporary directory
+        self.test_dir = tempfile.mkdtemp()
+
+        def clean_dir():
+            shutil.rmtree(self.test_dir)
+
+        self.addCleanup(clean_dir)
+
+        patcher1 = mock.patch('editolido.core.get_install_dir')
+        self.get_install_dir = patcher1.start()
+        self.get_install_dir.return_value = self.test_dir
+        self.addCleanup(patcher1.stop)
+        patcher2 = mock.patch('editolido.core.download_package')
+        self.download_package = patcher2.start()
+        self.addCleanup(patcher2.stop)
+        patcher3 = mock.patch('editolido.core.get_latest_version_infos')
+        self.json = patcher3.start()
+        self.addCleanup(patcher3.stop)
+        patcher4 = mock.patch('editolido.core.save_local_config')
+        self.cfg_write = patcher4.start()
+        self.addCleanup(patcher4.stop)
+        patcher5 = mock.patch('editolido.core.logger')
+        self.logger = patcher5.start()
+        self.addCleanup(patcher5.stop)
+        patcher6 = mock.patch('editolido.bootstrap_editorial.workflow')
+        self.workflow = patcher6.start()
+        patcher7 = mock.patch('editolido.core.read_local_config')
+        self.cfg = patcher7.start()
+        self.addCleanup(patcher7.stop)
+        from editolido.bootstrap_editorial import AUTO_UPDATE_KEY
+        self.workflow.get_parameters.return_value = {AUTO_UPDATE_KEY: False}
+        self.addCleanup(patcher6.stop)
+
+    def filename(self, filename):
+        kall = self.download_package.mock_calls[0]
+        _, args, kwargs = kall
+        return args[0], filename
+
+    def test_update_editolido_empty_url_up_to_date(self):
+        from editolido.core import update_editolido, infos_from_giturl
+        from editolido.bootstrap_editorial import VERSION
+        local = ('https://github.com/flyingeek/editolido/archive/%s.zip'
+                 % VERSION)
+        remote = ('https://github.com/flyingeek/editolido/archive/%s.zip'
+                 % VERSION)
+        param = ''
+        self.json.return_value = dict(url=remote)
+        self.cfg.return_value = infos_from_giturl(local)
+        update_editolido(param)
         self.download_package.assert_not_called()
-        self.download_package.reset_mock()
-        logger.reset_mock()
+        self.logger.error.assert_not_called()
 
-        url = "https://github.com/flyingeek/editolido/archive/99.99.99.zip"
-        update_editolido(url)
-        # install bigger version if in URL
-        logger.info.assert_any_call('editolido module %s installed' % VERSION)
-        self.assertTrue(self.download_package.called)
-        self.download_package.reset_mock()
-        logger.reset_mock()
-
-    @mock.patch('editolido.core.read_local_config')
-    @mock.patch('editolido.bootstrap_editorial.workflow')
-    @mock.patch('editolido.core.logger')
-    def test_update_lido_logic_not_auto_same_branch(
-            self, logger, workflow, cfg):
+    def test_update_editolido_empty_url_needs_update(self):
         from editolido.core import update_editolido, infos_from_giturl
-        from editolido.bootstrap_editorial import AUTO_UPDATE_KEY
-        workflow.get_parameters.return_value = {AUTO_UPDATE_KEY: False}
-        url = "https://github.com/flyingeek/editolido/archive/master.zip"
-        cfg.return_value = infos_from_giturl(url)
-        update_editolido(url)
-        # branch are installed only when auto-update is on
+        from editolido.bootstrap_editorial import VERSION
+        local = ('https://github.com/flyingeek/editolido/archive/%s.zip'
+                 % VERSION)
+        remote = 'https://github.com/flyingeek/editolido/archive/99.99.99.zip'
+        param = ''
+        self.json.return_value = dict(url=remote)
+        self.cfg.return_value = infos_from_giturl(local)
+        update_editolido(param)
         self.download_package.assert_not_called()
-        logger.error.assert_not_called()
+        self.logger.error.assert_not_called()
 
-    @mock.patch('editolido.core.read_local_config')
-    @mock.patch('editolido.bootstrap_editorial.workflow')
-    @mock.patch('editolido.core.logger', create=False)
-    def test_update_lido_logic_not_auto_tag_to_branch(
-            self, logger, workflow, cfg):
+    def test_update_editolido_bad_url(self):
         from editolido.core import update_editolido, infos_from_giturl
-        from editolido.bootstrap_editorial import AUTO_UPDATE_KEY
-        workflow.get_parameters.return_value = {AUTO_UPDATE_KEY: False}
-        url = "https://github.com/flyingeek/editolido/archive/master.zip"
-        cfg.return_value = infos_from_giturl(
-            "https://github.com/flyingeek/editolido/archive/1.0.0b7.zip")
-        update_editolido(url)
-        # even with auto off upgrade to branch if not on same branch
-        self.assertTrue(self.download_package.called)
-        logger.error.assert_not_called()
+        local = 'https://github.com/flyingeek/editolido/archive/1.0.0b7.zip'
+        remote = 'https://github.com/flyingeek/editolido/archive/1.0.0b8.zip'
+        param = 'http://www.example.com'
+        self.json.return_value = dict(url=remote)
+        self.cfg.return_value = infos_from_giturl(local)
+        update_editolido(param)
+        self.download_package.assert_not_called()
+        self.logger.error.assert_called_with(
+            'invalid url http://www.example.com')
 
-    @mock.patch('editolido.core.read_local_config')
-    @mock.patch('editolido.bootstrap_editorial.workflow')
-    @mock.patch('editolido.core.logger', create=False)
-    def test_update_lido_logic_auto_same_branch(
-            self, logger, workflow, cfg):
+    def test_update_editolido_same_version(self):
         from editolido.core import update_editolido, infos_from_giturl
-        from editolido.bootstrap_editorial import AUTO_UPDATE_KEY
-        workflow.get_parameters.return_value = {AUTO_UPDATE_KEY: True}
-        url = "https://github.com/flyingeek/editolido/archive/master.zip"
-        cfg.return_value = infos_from_giturl(url)
-        update_editolido(url)
-        # branch are installed only when auto-update is on
+        remote = "https://github.com/flyingeek/editolido/archive/1.0.0b7.zip"
+        local = 'https://github.com/flyingeek/editolido/archive/1.0.0b7.zip'
+        param = 'https://github.com/flyingeek/editolido/archive/1.0.0b6.zip'
+        self.cfg.return_value = infos_from_giturl(local)
+        self.json.return_value = dict(url=remote)
+        update_editolido(param)
+        self.download_package.assert_not_called()
+        self.logger.error.assert_not_called()
+
+    def test_update_editolido_url_param_greater(self):
+        from editolido.core import update_editolido, infos_from_giturl
+        remote = "https://github.com/flyingeek/editolido/archive/1.0.0b8.zip"
+        local = 'https://github.com/flyingeek/editolido/archive/1.0.0b7.zip'
+        param = 'https://github.com/flyingeek/editolido/archive/1.0.0b8.zip'
+        self.cfg.return_value = infos_from_giturl(local)
+        self.json.return_value = dict(url=remote)
+        update_editolido(param)
+        self.logger.error.assert_not_called()
         self.assertTrue(self.download_package.called)
-        logger.error.assert_not_called()
+        self.assertIn(*self.filename(param))
+
+    def test_update_editolido_params_greater_json(self):
+        from editolido.core import update_editolido, infos_from_giturl
+        remote = "https://github.com/flyingeek/editolido/archive/1.0.0b8.zip"
+        local = 'https://github.com/flyingeek/editolido/archive/1.0.0b7.zip'
+        param = 'https://github.com/flyingeek/editolido/archive/1.0.0b9.zip'
+        self.cfg.return_value = infos_from_giturl(local)
+        self.json.return_value = dict(url=remote)
+        update_editolido(param)
+        self.logger.error.assert_not_called()
+        self.assertTrue(self.download_package.called)
+        self.assertIn(*self.filename(param))
+
+    def test_update_editolido_json_greater_version(self):
+        from editolido.core import update_editolido, infos_from_giturl
+        remote = "https://github.com/flyingeek/editolido/archive/1.0.0b8.zip"
+        local = 'https://github.com/flyingeek/editolido/archive/1.0.0b7.zip'
+        param = 'https://github.com/flyingeek/editolido/archive/1.0.0b6.zip'
+        self.cfg.return_value = infos_from_giturl(local)
+        self.json.return_value = dict(url=remote)
+        update_editolido(param)
+        self.download_package.assert_not_called()
+        self.logger.error.assert_not_called()
+
+    def test_update_editolido_to_branch(self):
+        from editolido.core import update_editolido, infos_from_giturl
+        remote = "https://github.com/flyingeek/editolido/archive/99.99.99.zip"
+        local = 'https://github.com/flyingeek/editolido/archive/1.0.0b7.zip'
+        param = 'https://github.com/flyingeek/editolido/archive/master.zip'
+        self.cfg.return_value = infos_from_giturl(local)
+        self.json.return_value = dict(url=remote)
+        update_editolido(param)
+        self.assertTrue(self.download_package.called)
+        self.assertIn(*self.filename(param))
+        self.logger.info.assert_any_call('remote version: master')
+        self.logger.error.assert_not_called()
+
+    def test_update_editolido_same_branch(self):
+        from editolido.core import update_editolido, infos_from_giturl
+        remote = "https://github.com/flyingeek/editolido/archive/99.99.99.zip"
+        local = 'https://github.com/flyingeek/editolido/archive/master.zip'
+        param = 'https://github.com/flyingeek/editolido/archive/master.zip'
+        self.cfg.return_value = infos_from_giturl(local)
+        self.json.return_value = dict(url=remote)
+        update_editolido(param)
+        self.assertFalse(self.download_package.called)
+        self.logger.error.assert_not_called()
+
+    def test_update_editolido_from_branch(self):
+        from editolido.core import update_editolido, infos_from_giturl
+        remote = "https://github.com/flyingeek/editolido/archive/99.99.99.zip"
+        local = 'https://github.com/flyingeek/editolido/archive/master.zip'
+        param = 'https://github.com/flyingeek/editolido/archive/1.0.0b7.zip'
+        self.cfg.return_value = infos_from_giturl(local)
+        self.json.return_value = dict(url=remote)
+        update_editolido(param)
+        self.logger.error.assert_not_called()
+        self.logger.info.assert_any_call('remote version: 1.0.0b7')
+        self.assertTrue(self.download_package.called)
+        self.assertIn(*self.filename(param))
