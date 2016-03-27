@@ -113,8 +113,11 @@ def get_install_dir():
 
 
 def get_local_config_filepath(name='data/editolido.local.cfg.json'):
-    name = name.replace('/', os.path.sep)
-    return os.path.join(os.path.dirname(os.path.realpath(__file__)), name)
+    # Editorial does not leave file in the Document directory
+    # this does not works
+    # name = name.replace('/', os.path.sep)
+    # return os.path.join(os.path.dirname(os.path.realpath(__file__)), name)
+    return os.path.join(DOCUMENTS, 'editolido/' + name)
 
 
 def save_local_config(data):
