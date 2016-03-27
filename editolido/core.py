@@ -9,9 +9,17 @@ from distutils.version import StrictVersion
 import requests
 
 import editolido
-from editolido.bootstrap_editorial import logger, infos_from_giturl, \
+from editolido.bootstrap_editorial import Logger, infos_from_giturl, \
     download_package, check_old_install, get_install_dir, auto_update_is_set,\
     latest_release, get_local_config_filepath, save_local_config
+
+try:
+    import workflow  # in Editorial
+except ImportError:
+    from editolido.workflows.editorial.workflow import Workflow
+    workflow = Workflow()
+
+logger = Logger(workflow.get_parameters().get('Log', 2L))
 
 
 def raw_content_url(url, filename='bootstrap_editorial.py',
@@ -100,7 +108,7 @@ def log_local_version(version, branch=None):
                 logger.info('local branch is [%s]' % branch)
             else:
                 logger.error('local branch is [%s] but [%s] expected'
-                            % (local_infos['branch_release'], branch))
+                             % (local_infos['branch_release'], branch))
     else:
         logger.info('local version is %s' % version)
 

@@ -247,8 +247,8 @@ class TestLogger(TestCase):
         self.addCleanup(patcher.stop)
 
     def test_log_none(self):
-        from editolido.bootstrap_editorial import _Logger
-        logger = _Logger(0)
+        from editolido.bootstrap_editorial import Logger
+        logger = Logger(0)
         logger.error('test_error')
         self.mock_print.assert_not_called()
         logger.info('test_info')
@@ -257,8 +257,8 @@ class TestLogger(TestCase):
         self.mock_print.assert_called_with('test_log')
 
     def test_log_error(self):
-        from editolido.bootstrap_editorial import _Logger
-        logger = _Logger(1)
+        from editolido.bootstrap_editorial import Logger
+        logger = Logger(1)
         logger.error('test_error')
         self.mock_print.assert_called_with('test_error')
         self.mock_print.reset_mock()
@@ -268,8 +268,8 @@ class TestLogger(TestCase):
         self.mock_print.assert_called_with('test_log')
 
     def test_log_info(self):
-        from editolido.bootstrap_editorial import _Logger
-        logger = _Logger(2)
+        from editolido.bootstrap_editorial import Logger
+        logger = Logger(2)
         logger.error('test_error')
         self.mock_print.assert_called_with('test_error')
         self.mock_print.reset_mock()

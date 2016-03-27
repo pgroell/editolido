@@ -15,7 +15,7 @@ except ImportError:
     workflow = Workflow()
 
 
-class _Logger(object):
+class Logger(object):
     def __init__(self, threshold):
         self.threshold = threshold
 
@@ -28,8 +28,9 @@ class _Logger(object):
 
     def error(self, message):
         self.log(message, 1)
+_Logger = Logger  # update compatibility from 1.0.1b3
 
-logger = _Logger(workflow.get_parameters().get('Log', 2L))
+logger = Logger(workflow.get_parameters().get('Log', 2L))
 VERSION = '1.0.1b3'
 DOCUMENTS = os.path.join(os.path.expanduser('~'), 'Documents')
 AUTO_UPDATE_KEY = 'Mise à jour auto'
