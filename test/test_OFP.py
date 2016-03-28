@@ -140,17 +140,6 @@ class TestOFP(TestCase):
         self.assertTrue(tracks[0].name.endswith('A'))
         self.assertTrue(tracks[-1].name.endswith('J'))
 
-    def tests_tracks_rlat(self):
-        msg = 'TRACKSNAT F   5230N020W 5330N030W 53N040W LVLS WB 350'
-        expected = [
-            GeoPoint((52.5, -20)), GeoPoint((53.5, -30)), GeoPoint((53, -40))]
-        ofp = OFP(msg)
-        tracks = list(ofp.tracks)
-        self.assertEqual(len(tracks), 1)
-        track = tracks[0]
-        self.assertEqual(track.name, 'NAT F')
-        self.assertEqual(list(track.route), expected)
-
     def tests_tracks_rlat_new_format(self):
         with open(DATADIR + '/AF009_KJFK-LFPG_18Mar2016_04:55z_OFP_12_0_1.txt',
                   'r') as f:
@@ -198,14 +187,18 @@ class TestOFP(TestCase):
                     GeoPoint((41, -50)),
                     GeoPoint((41, -40))])
             )
-            self.assertEqual(tracks[4].name, 'NAT W')
+            self.assertEqual(tracks[4].name, 'NAT W')  # FPL Track
             self.assertEqual(
                 tracks[4],  # W
                 Route([
+                    GeoPoint((46.500000, -52.000000), name="PORTI"),
                     GeoPoint((47, -50)),
                     GeoPoint((48, -40)),
                     GeoPoint((50, -30)),
-                    GeoPoint((52, -20))])
+                    GeoPoint((52, -20)),
+                    GeoPoint((52.000000, -15.000000), name="LIMRI"),
+                    GeoPoint((52.000000, -14.000000), name="XETBO"),
+                ])
             )
             self.assertTrue(tracks[0].name.endswith('S'))
             self.assertTrue(tracks[-1].name.endswith('Z'))

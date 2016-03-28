@@ -115,3 +115,14 @@ class Route(object):
         size = converter(max_length) if converter else max_length
         return self.__class__(splitted_route_generator(size, preserve),
                               name=name, description=description)
+
+
+class Track(Route):
+    def __init__(self, points=None, name=None, description=None,
+                 is_mine=False):
+        self._is_mine = is_mine
+        super(Track, self).__init__(points, name, description)
+
+    @property
+    def is_mine(self):
+        return self._is_mine
