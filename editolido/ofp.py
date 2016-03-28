@@ -4,7 +4,7 @@ import itertools
 import re
 import sys
 from datetime import datetime, timedelta, tzinfo
-from editolido.route import Route
+from editolido.route import Route, Track
 from editolido.geopoint import GeoPoint, dm_normalizer, arinc_normalizer
 
 MONTHS = ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct',
@@ -33,6 +33,7 @@ class OFP(object):
         self.text = text
         self._infos = None
         self._fpl_route = None
+        self._route = None
 
     @classmethod
     def log_error(cls, message):  # pragma no cover
@@ -103,6 +104,9 @@ class OFP(object):
 
     @property
     def wpt_coordinates(self):
+        """
+        Return a generator of the ofp's wpt_coordinates
+        """
         tag = 'WPT COORDINATES'
         try:
             s = self.get_between(tag, '----')
@@ -112,7 +116,19 @@ class OFP(object):
         return self.wpt_coordinates_generator(s)
 
     @property
+    def route(self):
+        """
+        Return a Route of the wpt_coordinates
+        """
+        if self._route is None:
+            self._route = Route(self.wpt_coordinates)
+        return self._route
+
+    @property
     def wpt_coordinates_alternate(self):
+        """
+        Return a generator of the ofp's wpt_coordinates for alternate
+        """
         start = 'WPT COORDINATES'
         end = 'ATC FLIGHT PLAN'
         try:
@@ -159,6 +175,21 @@ class OFP(object):
                     yield parts[1], "%s LVLS%s" % (parts[0], parts[2])
             return updated_mar2016_generator()
 
+    @staticmethod
+    def fpl_track_label(letter):
+        """
+        return the label designating the track in the FPL
+        """
+        return "NAT%s" % letter
+
+    def is_my_track(self, letter):
+        """
+        Checks if the designated track is in the fpl
+        """
+        if not self.fpl_route:
+            return False
+        return self.fpl_track_label(letter) in self.fpl_route[1:-1]
+
     @property
     def tracks(self):
         """
@@ -171,18 +202,32 @@ class OFP(object):
         except (LookupError, IndexError):
             raise StopIteration
 
-        def nat_route_generator(text):
-            m = re.findall(
-                r'(\d{2,4}[NS]\d{3,5}[EW]|[NESW]\d{4}|\d[NESW]\d{3}[^EW])',
-                text.split('LVLS')[0])
-            for arinc_point in m:
-                yield GeoPoint(arinc_point, normalizer=arinc_normalizer)
+        def nat_route_generator(text, label_dict=None):
+            track_points = [p.strip() for p in text.split(' ') if p.strip()]
+
+            for label in track_points:
+                m = re.match(
+                    r'(\d{2,4}[NS]\d{3,5}[EW]|[NESW]\d{4}|\d[NESW]\d{3}[^EW])',
+                    label
+                )
+                if m:
+                    yield GeoPoint(label, normalizer=arinc_normalizer)
+                elif label_dict and label in label_dict:
+                    yield label_dict[label]
 
         for letter, description in tracks:
-            yield Route(
-                nat_route_generator(description),
+            is_mine = self.is_my_track(letter)
+            label_dict = None
+            if is_mine:
+                label_dict = {p.name: p for p in self.route if p.name}
+            yield Track(
+                nat_route_generator(
+                    description,
+                    label_dict),
                 name="NAT %s" % letter,
-                description=description)
+                description=description,
+                is_mine=self.is_my_track(letter),
+            )
 
     @property
     def infos(self):
@@ -265,7 +310,7 @@ class OFP(object):
         """
         points = []  # backup if no fpl
         raw_points = []
-        for p in self.wpt_coordinates:
+        for p in self.route:
             raw_points.append(p.dm)
             if re.search(r'\d+', p.name) or not p.name:
                 points.append(p.dm)
@@ -332,7 +377,7 @@ class OFP(object):
             text = text.split('LVLS', 1)[0].strip()
             track_points = [p for p in text.split(' ') if p]
             m = recursive_nat_replace(
-                lido_route, "NAT%s" % letter, track_points)
+                lido_route, self.fpl_track_label(letter), track_points)
             if m:
                 lido_route = m
                 break

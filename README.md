@@ -2,12 +2,13 @@
 
 Je sais je dois faire la doc... :-)
 
-Usage:
------
+Installation:
+-------------
  - Installez le worklow [Lido2Mapsme+](https://workflow.is/workflows/ea27b4ab34dc4275b954723748ce754e)
  - Installez le workflow Editorial [Lido2Mapsme+](http://www.editorial-workflows.com/workflow/5800601703153664/o7BioyJJW8o#)
  - Lancez au moins une fois l'un des deux workflow pour télécharger le module editolido
  - Pour la première utilisation il faut être connecté à Internet.
+ - Les utilisateurs des Beta doivent effacer l'ancien dossier site-package, relancer (tué) Editorial, supprimer l'ancien workflow Lido2Mapsme+
  
 Réglages:
 --------
@@ -19,13 +20,23 @@ Mise à jour:
  - réinstallez le workflow Editorial (les personnalisations sont perdues)
  - Ou laisser le mode automatique activé (réglages dans la première action du workflow).
  
+En cas de problèmes:
+--------------------
+ Vous vous êtes déjà servi des workflows => envoyez votre OFP (Ici en ouvrant un ticket dans Issues ou sur Yammer).
+ 
+ Vous êtes utilisateur d'une ancienne version ou vous installez pour la première fois:
+ 
+ - Il ne faut qu'un seul workflow Editorial Lido2Mapsme+ dans le doute, effacez l'ancien (ou les anciens) et réinstallez. Actuellement le workflow Editorial version 1.0.1 ou plus est à jour (lien au début de ce readme).
+ - Assurez-vous d'utiliser la dernière version du module editolido (switch Mise à jour auto sur ON) et effacez le dossier editolido, il sera téléchargé à nouveau.
+ - si ça ne fonctionne toujours pas, effacez encore une fois le dossier editolido relancez python en redémarrant Editorial après l'avoir "tué" (double click sur le bouton iPhone, balayer l'app Editorial vers le haut)
+ - Envoyez aussi votre OFP
+
 Changements:
 ------------
-IMPORTANT pour la 1.0.1, Les utilisateurs des versions beta doivent:
-- Noter dans un coin leurs customisations de l'ancien workflow Editorial
-- Effacer l'ancien dossier site-package (ou au minimum le dossier editolido qui s'y trouve)
-- Relancer Editorial (Tuer l'application via double click sur le bouton de l'iPad, puis balayer vers le haut l'application Editorial)
-- Mettre à jour le workflow Editorial (effacer et reinstaller, lien au dessus)
+##v1.0.2
+ - Première mise à jour automatique, je touche du bois :-)
+ - Le track du FPL est affiché en entier avec pin à chaque extrémité
+ - correction d'un bug sur la couleur du dégagement
 
 ##v1.0.1
  - Configurable (dans Editorial, éditez le workflow)

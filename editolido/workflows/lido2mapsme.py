@@ -26,21 +26,32 @@ def lido2mapsme(action_in, params, debug=False):
 
     kml.add_folders('greatcircle', 'ogimet', 'rnat', 'ralt', 'rmain')
     route_name = "{departure}-{destination}".format(**ofp.infos)
-    route = Route(ofp.wpt_coordinates,
-                  name=route_name,
-                  description=ofp.description)
+    route = ofp.route
+    route.name = route_name
+    route.description = ofp.description
 
     natmarks = []
     if params['Afficher NAT']:
-        index = 0 if params['Position repère'] == NAT_POSITION_ENTRY else -1
+        pin_pos = 0 if params['Position repère'] == NAT_POSITION_ENTRY else -1
+        pin_style = params['Repère NAT']
         for track in ofp.tracks:
             if track:
                 kml.add_line('rnat', track)
-                if params['Repère NAT'] != PIN_NONE:
-                    p = GeoPoint(track[index], name=track.name,
-                                 description=track.description)
-                    natmarks.append(p)
-                    kml.add_point('rnat', p, style=params['Repère NAT'])
+                if pin_style != PIN_NONE:
+                    if track.is_mine:
+                        p = GeoPoint(track[0], name=track.name,
+                                     description=track.description)
+                        natmarks.append(p)
+                        kml.add_point('rnat', p, style=pin_style)
+                        p = GeoPoint(track[-1], name=track.name,
+                                     description=track.description)
+                        natmarks.append(p)
+                        kml.add_point('rnat', p, style=pin_style)
+                    else:
+                        p = GeoPoint(track[pin_pos], name=track.name,
+                                     description=track.description)
+                        natmarks.append(p)
+                        kml.add_point('rnat', p, style=pin_style)
             else:
                 print("empty track found %s" % track.name)
 
