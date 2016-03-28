@@ -70,8 +70,8 @@ def lido2gramet(action_in, params=None, debug=False):
         kml.add_folder('ogimet')
         kml.add_line('ogimet', route)
         tref_dt = datetime.datetime.fromtimestamp(tref, tz=utc)
-        name = ("Route Gramet {departure}-{destination} "
-                "{tref_dt:%d/%m/%Y %H:%M}z"
+        name = ("Route Gramet {flight} {departure}-{destination} "
+                "{tref_dt:%d%b%Y %H:%M}z OFP {ofp}"
                 .format(tref_dt=tref_dt, **ofp.infos))
         return kml.render(
             name=name,
