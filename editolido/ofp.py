@@ -3,7 +3,7 @@ from __future__ import unicode_literals, print_function
 import itertools
 import re
 import sys
-from datetime import datetime, timedelta, tzinfo
+from datetime import datetime, timedelta, tzinfo, time
 from editolido.route import Route, Track
 from editolido.geopoint import GeoPoint, dm_normalizer, arinc_normalizer
 
@@ -34,6 +34,7 @@ class OFP(object):
         self._infos = None
         self._fpl_route = None
         self._route = None
+        self._raw_fpl = None
 
     @classmethod
     def log_error(cls, message):  # pragma no cover
@@ -238,6 +239,7 @@ class OFP(object):
         - destination (LFPG)
         - datetime (a python datetime for scheduled departure block time)
         - date (OFP text date 25Apr2016)
+        - datetime2 (a python datetime for scheduled arrival block time)
         - ofp (OFP number 9/0/1)
         :return: dict
         """
@@ -262,7 +264,31 @@ class OFP(object):
                 date_object = datetime.strptime(date_text, '%d%m%Y/%H%M'
                                                 ).replace(tzinfo=utc)
                 self._infos['datetime'] = date_object
+                pattern = r'-%s' % self._infos['destination'] + r'(\d{4})\s'
+                m = re.search(pattern, self.raw_fpl_text())
+                if m:
+                    self._infos['duration'] = time(
+                        int(m.group(1)[:2]), int(m.group(1)[2:]), tzinfo=utc)
+                else:
+                    print('duration not found in opt, please report !')
+                    print('duration set arbitray to 1 hour')
+                    self._infos['duration'] = time(1, 0, tzinfo=utc)
         return self._infos
+
+    def raw_fpl_text(self):
+        """
+        Extract the FPL text part of the OFP
+        """
+        if self._raw_fpl is None:
+            tag = 'ATC FLIGHT PLAN'
+            try:
+                self._raw_fpl = self.get_between(tag, 'TRACKSNAT')
+            except LookupError as e:
+                self.log_error("%s not found" % tag)
+                self._raw_fpl = e
+        if isinstance(self._raw_fpl, Exception):
+            raise LookupError
+        return self._raw_fpl
 
     @property
     def fpl(self):
@@ -270,11 +296,9 @@ class OFP(object):
         FPL found in OFP
         :return: list
         """
-        tag = 'ATC FLIGHT PLAN'
         try:
-            text = self.get_between(tag, 'TRACKSNAT')
+            text = self.raw_fpl_text()
         except LookupError:
-            self.log_error("%s not found" % tag)
             return []
         try:
             text = self.extract(
