@@ -49,6 +49,9 @@ Lido2Gramet+ s'utilise comme Lido2Mapsme+. Pour "Revoir Gramet", soit on double 
 
 Changements:
 ------------
+##v1.0.4
+ - Fix pour les OFP du MC
+ - Fix dans le cas où la sauvegarde de l'input était sur OFF
 ##v1.0.3
  - Compatibilité avec le workflow Lido2Gramet+ (voir ci-dessus).
  - Il est conseillé de mettre à jour [Lido2Mapsme+ pour Workflow](https://workflow.is/workflows/7c3c1b94382f4f5a9d67b13fbebe0e53) car il est mieux programmé.
