@@ -242,6 +242,26 @@ class TestOFP(TestCase):
         self.assertEqual(dt.tzname(), 'UTC')
         self.assertEqual(dt.utcoffset(), timedelta(0))
 
+    def test_infos_af1753_28Mar2016(self):
+        from datetime import datetime, timedelta, time
+        from editolido.ofp import utc
+        with open(DATADIR + '/AF1753_UKBB-LFPG_28Mar2016_12:15z_OFP13.txt',
+                  'r') as f:
+            ofp = OFP(f.read())
+        expected = {
+            'flight': 'AF1753',
+            'departure': 'UKBB',
+            'destination': 'LFPG',
+            'datetime': datetime(2016, 3, 28, 12, 15, tzinfo=utc),
+            'duration': time(2, 57, tzinfo=utc),
+            'ofp': '13',
+            'date': '28Mar2016'
+        }
+        self.assertDictEqual(ofp.infos, expected)
+        dt = ofp.infos['datetime']
+        self.assertEqual(dt.tzname(), 'UTC')
+        self.assertEqual(dt.utcoffset(), timedelta(0))
+
     def test_description(self):
         with open(DATADIR + '/KJFK-LFPG 27Mar2015 05:45z.txt', 'r') as f:
             ofp = OFP(f.read())

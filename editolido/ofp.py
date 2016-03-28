@@ -244,7 +244,7 @@ class OFP(object):
         :return: dict
         """
         if self._infos is None:
-            pattern = r'\d{4}z(?P<flight>.+)' \
+            pattern = r'(?P<flight>AF.+)' \
                       r'(?P<departure>\S{4})/' \
                       r'(?P<destination>\S{4})\s+' \
                       r'(?P<datetime>\S+/\S{4})z.*OFP\s+' \

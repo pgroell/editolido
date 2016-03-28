@@ -121,22 +121,30 @@ def load_or_save(action_in, save=None, reldir=None, filename=None):
     # noinspection PyUnresolvedReferences
     import workflow
 
-    if save and action_in:
-        from editolido.ofp import OFP
+    from editolido.ofp import OFP
+    unknown_ofp = '_ofp_non_reconnu_.txt'
+    ofp = None
+    if action_in:
         ofp = OFP(action_in)
         if not ofp.infos:
+            filename = unknown_ofp
+            save = True
+    if save and action_in:
+        if filename == unknown_ofp:
+            relpath = os.path.join(reldir, unknown_ofp)
+        else:
+            relpath = os.path.join(
+                reldir, filename.format(**ofp.infos).replace('/', '_'))
+        absdir = os.path.dirname(get_abspath(relpath))
+        if not os.path.exists(absdir):
+            os.makedirs(absdir)
+        editor.set_file_contents(relpath, action_in.encode('utf-8'))
+        if filename == unknown_ofp:
             print("OFP non reconnu, merci de créer un ticket (issue) sur:")
             print("https://github.com/flyingeek/editolido/issues")
             print("N'oubliez pas de joindre votre OFP en pdf.")
             print("Vous pouvez aussi le poster sur Yammer (groupe Mapsme)")
             raise KeyboardInterrupt
-        relpath = os.path.join(reldir,
-                               filename.format(**ofp.infos).replace('/', '_'))
-        absdir = os.path.dirname(get_abspath(relpath))
-        if not os.path.exists(absdir):
-            os.makedirs(absdir)
-        editor.set_file_contents(relpath, action_in.encode('utf-8'))
-        return action_in
     elif not action_in:  # Load
         try:
             files = os.listdir(get_abspath(reldir))
@@ -157,6 +165,7 @@ def load_or_save(action_in, save=None, reldir=None, filename=None):
             relpath = os.path.join(reldir, filename)
             content = editor.get_file_contents(relpath)
             return content.decode('utf-8') if content else ''
+    return action_in
 
 
 def save_kml(content, save=None, reldir=None, filename=None, workflow_in=None):
