@@ -34,6 +34,7 @@ En cas de problèmes:
 Changements:
 ------------
 ##v1.0.2
+ - Première mise à jour automatique, je touche du bois :-)
  - Le track du FPL est affiché en entier avec pin à chaque extrémité
  - correction d'un bug sur la couleur du dégagement
 
