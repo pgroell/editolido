@@ -124,6 +124,12 @@ def load_or_save(action_in, save=None, reldir=None, filename=None):
     if save and action_in:
         from editolido.ofp import OFP
         ofp = OFP(action_in)
+        if not ofp.infos:
+            print("OFP non reconnu, merci de créer un ticket (issue) sur:")
+            print("https://github.com/flyingeek/editolido/issues")
+            print("N'oubliez pas de joindre votre OFP en pdf.")
+            print("Vous pouvez aussi le poster sur Yammer (groupe Mapsme)")
+            raise KeyboardInterrupt
         relpath = os.path.join(reldir,
                                filename.format(**ofp.infos).replace('/', '_'))
         absdir = os.path.dirname(get_abspath(relpath))
