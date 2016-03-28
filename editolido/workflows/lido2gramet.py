@@ -76,5 +76,5 @@ def lido2gramet(action_in, params=None, debug=False):
         return kml.render(
             name=name,
             ogimet_color=params.get('Couleur Ogimet', '') or '50FF0000')
-    return
+    return ''
 
