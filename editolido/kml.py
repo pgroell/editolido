@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-
-import os
 from collections import OrderedDict
+import os
 
 from editolido.constants import PINS
 
@@ -122,7 +121,7 @@ class KMLGenerator(object):
         :return: unicode
         """
         return self.template.format(
-            styles=''.join(self.styles.itervalues()).format(**kwargs),
+            styles=''.join(self.styles.values()).format(**kwargs),
             folders=self.render_folders(),
             **kwargs
         )
@@ -145,4 +144,4 @@ class KMLGenerator(object):
         :return: str
         """
         return '\n'.join(
-            [self.render_folder(folder) for folder in self.folders.iterkeys()])
+            [self.render_folder(folder) for folder in self.folders])

@@ -31,7 +31,7 @@ class TestKMLGenerator(TestCase):
         args = {'style': 0}
         fn('folder', args)
         self.assertEqual(args['style'], '#placemark-none')
-        args = {'style': 0L}
+        args = {'style': 0}
         fn('folder', args)
         self.assertEqual(args['style'], '#placemark-none')
 

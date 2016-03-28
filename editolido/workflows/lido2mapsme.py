@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import unicode_literals, print_function
 import os
 
 
@@ -42,7 +42,7 @@ def lido2mapsme(action_in, params, debug=False):
                     natmarks.append(p)
                     kml.add_point('rnat', p, style=params['Repère NAT'])
             else:
-                print "empty track found %s" % track.name
+                print("empty track found %s" % track.name)
 
     if params['Afficher Ortho']:
         greatcircle = Route((route[0], route[-1])).split(

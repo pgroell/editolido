@@ -40,6 +40,10 @@ def raw_content_url(url, filename='bootstrap_editorial.py',
 
 
 def reload_editolido(install_dir, name='editolido'):
+    try:
+        from importlib import reload
+    except ImportError:
+        from imp import reload
     queue = []
     for module in sys.modules.values():
         try:

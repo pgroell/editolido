@@ -1,10 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-
+try:
+    # noinspection PyCompatibility
+    from urllib.request import urlopen
+except ImportError:
+    # noinspection PyCompatibility
+    from urllib2 import urlopen
 import csv
 import json
 import os
-import urllib2
+# try:
+#     from urllib.request import urlopen
+# except ImportError:
+#     from urllib2 import urlopen
 from itertools import chain
 import editolido.geohash as geohash
 from editolido.geolite import km_to_rad
@@ -12,7 +20,7 @@ from editolido.geopoint import GeoPointEncoder, as_geopoint
 
 
 def wmo_importer(url='http://weather.noaa.gov/data/nsd_bbsss.txt'):
-    reader = csv.reader(urllib2.urlopen(url),
+    reader = csv.reader(urlopen(url),
                         delimiter=b';', quoting=csv.QUOTE_NONE)
 
     def geo_normalize(value):
