@@ -37,9 +37,10 @@ Workflow optionnels:
   - [Lido2Gramet+ pour Editorial](http://www.editorial-workflows.com/workflow/5833750260744192/T_q3eg1pbg8)
   - [Revoir Gramet pour Workflow](https://workflow.is/workflows/4d4dc41212734e32aa0ac07a7b3deb2e)
 
-Lido2Gramet affiche le Gramet (coupe météo) pour l'OFP en calculant la route approximative nécessaire.
-
-Comme la route n'est pas exactement celle de l'OFP il peut être intérressant de la visualiser. On peut le faire en paramétrant dans Editorial Lido2Gramet+ ou Lido2Mapsme+, c'est une question de goût. En choisissant de le faire depuis Lido2Mapsme+, il n'est pas possible de masquer la route Ogimet dans Mapsme, si on le fait depuis Lido2Gramet+ il faut envoyer la route dans Mapsme et du coup il faut passer par l'app Photos ou le workflow Revoir Gramet pour l'afficher.
+Lido2Gramet affiche le Gramet (coupe météo) pour l'OFP en calculant la route approximative nécessaire. Comme la route n'est pas exactement celle de l'OFP il peut être intérressant de la visualiser. Par défaut elle n'est pas visualisée.
+Pour afficher cette route dans Mapsme, il faut paramétrer les workflows Editorial Lido2Gramet+ ou Lido2Mapsme+. Lequel ? c'est une question de goût: 
+ - En choisissant de le faire depuis Lido2Mapsme+, il n'est pas possible de masquer la route Ogimet dans Mapsme
+ - si on le fait depuis Lido2Gramet+ il faut passer par l'app Photos ou le workflow Revoir Gramet pour afficher l'image du Gramet.
 
 Au niveau de la configuration, il faut créer un album dans Photos (Gramet), puis editer dans l'app Workflow les worfklows "Lido2Gramet+" et "Revoir Gramet" en modifiant (ou vérifiant) que l'album sélectionné dans les actions "Find Photos Where" et "Save to Photo Album" est bien Gramet.
 
