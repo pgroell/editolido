@@ -6,3 +6,4 @@ MANIFEST
 .coveralls.yml
 .tox
 .pycharmrc
+.cache
