@@ -49,6 +49,9 @@ Lido2Gramet+ s'utilise comme Lido2Mapsme+. Pour "Revoir Gramet", soit on double 
 
 Changements:
 ------------
+##v1.0.5
+ - Fix Gramet utc timestamp
+
 ##v1.0.4
  - Fix pour les OFP du MC
  - Fix dans le cas où la sauvegarde de l'input était sur OFF

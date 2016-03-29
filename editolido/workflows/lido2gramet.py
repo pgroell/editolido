@@ -26,6 +26,7 @@ def lido2gramet(action_in, params=None, debug=False):
     workflow.set_output(lido2gramet(action_in, params=params))
     """
     import datetime
+    import calendar
     import time
     from editolido.ofp import OFP
     from editolido.kml import KMLGenerator
@@ -42,8 +43,10 @@ def lido2gramet(action_in, params=None, debug=False):
     taxitime = int(params.get('Temps de roulage', '') or '15')
     # timestamp for departure
     takeoff = ofp.infos['datetime'] + datetime.timedelta(minutes=taxitime)
-    ts =  time.mktime(takeoff.timetuple())
-    now_ts = int(time.time())  # http://stackoverflow.com/questions/13890935
+    # http://stackoverflow.com/questions/15447632
+    ts =  calendar.timegm(takeoff.timetuple())
+    # http://stackoverflow.com/questions/13890935
+    now_ts = int(time.time())
     tref = max(now_ts, ts)  # for old ofp timeref=now
     # average flight level
     levels = map(int, re.findall(r'F(\d{3})\s', ofp.raw_fpl_text()))
