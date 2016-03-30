@@ -1,7 +1,7 @@
 <Placemark>
-  <name>{name}</name>
+  <name><![CDATA[{name}]]></name>
   <styleUrl>{style}</styleUrl>
-  <description>{description}</description>
+  <description><![CDATA[{description}]]></description>
   <LineString>
     <tessellate>1</tessellate>
     <coordinates>{coordinates}</coordinates>

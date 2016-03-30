@@ -3,20 +3,31 @@ from __future__ import unicode_literals
 from collections import OrderedDict
 import os
 
-from editolido.constants import PINS
+from editolido.constants import PINS, GOOGLE_ICONS, PIN_NONE
 
 default_linestyle = """
     <Style id='{0}'>
-      <LineStyle>
-        <color>{{{0}_color}}</color>
-      </LineStyle>
+        <LineStyle>
+            <width>3</width>
+            <color>{{{0}_color}}</color>
+        </LineStyle>
+    </Style>
+"""
+default_iconstyle="""
+    <Style id='{0}'>
+        <IconStyle>
+            <Icon>
+                <href><![CDATA[{1}]]></href>
+            </Icon>
+            <hotSpot x="0.5"  y="0.0" xunits="fraction" yunits="fraction"/>
+        </IconStyle>
     </Style>
 """
 
-
 class KMLGenerator(object):
     def __init__(self, template=None, point_template=None, line_template=None,
-                 folder_template=None, style_template=default_linestyle):
+                 folder_template=None, style_template=default_linestyle,
+                 icon_template=default_iconstyle):
         datadir = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), 'data')
         self.template = template
@@ -36,16 +47,34 @@ class KMLGenerator(object):
             with open(os.path.join(datadir, 'mapsme_folder_tpl.kml')) as f:
                 self.folder_template = f.read().decode()
         self.style_template = style_template
+        self.icon_template = icon_template
         self.folders = OrderedDict()
         self.styles = OrderedDict()
 
-    def add_folder(self, name):
-        self.folders[name] = []
-        self.styles[name] = self.style_template.format(name)
+    @staticmethod
+    def escape(text):
+        text = text.replace("<", "&lt;")
+        text = text.replace(">", "&gt;")
+        text = text.replace("&", "&amp;")
+        text = text.replace("\"", "&quot;")
+        return text
 
-    def add_folders(self, *names):
-        for name in names:
-            self.add_folder(name)
+    def add_folder(self, name, pin=None):
+        self.folders[name] = []
+        style = self.style_template.format(name)
+        if pin is not None and pin != PIN_NONE:
+            style += self.icon_template.format(
+                PINS[pin][1:], GOOGLE_ICONS[pin])
+        self.styles[name] = style
+
+    def add_folders(self, *values):
+        for value in values:
+            try:
+                name, pin = value
+            except ValueError:
+                name = value
+                pin = PIN_NONE
+            self.add_folder(name, pin)
 
     @staticmethod
     def _update_kwargs(folder, kwargs):

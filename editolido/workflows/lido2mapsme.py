@@ -15,7 +15,7 @@ def lido2mapsme(action_in, params, debug=False):
     :param debug: bool determines wether or not to print ogimet debug messages
     :return:
     """
-    from editolido.constants import NAT_POSITION_ENTRY, PIN_NONE, PIN_PINK
+    from editolido.constants import NAT_POSITION_ENTRY, PIN_NONE
     from editolido.geopoint import GeoPoint
     from editolido.kml import KMLGenerator
     from editolido.ofp import OFP
@@ -23,8 +23,14 @@ def lido2mapsme(action_in, params, debug=False):
     from editolido.ogimet import ogimet_route
     ofp = OFP(action_in)
     kml = KMLGenerator()
-
-    kml.add_folders('greatcircle', 'ogimet', 'rnat', 'ralt', 'rmain')
+    pin_rnat = params.get('Repère NAT', PIN_NONE)
+    pin_rmain = params.get('Point Route', PIN_NONE)
+    pin_ralt = params.get('Point Dégagement', PIN_NONE)
+    kml.add_folders(
+        'greatcircle', 'ogimet',
+        ('rnat', pin_rnat),
+        ('ralt', pin_ralt),
+        ('rmain', pin_rmain))
     route_name = "{departure}-{destination}".format(**ofp.infos)
     route = ofp.route
     route.name = route_name
@@ -33,25 +39,24 @@ def lido2mapsme(action_in, params, debug=False):
     natmarks = []
     if params.get('Afficher NAT', False):
         pin_pos = 0 if params['Position repère'] == NAT_POSITION_ENTRY else -1
-        pin_style = params.get('Repère NAT', PIN_NONE)
         for track in ofp.tracks:
             if track:
                 kml.add_line('rnat', track)
-                if pin_style != PIN_NONE:
+                if pin_rnat != PIN_NONE:
                     if track.is_mine:
                         p = GeoPoint(track[0], name=track.name,
                                      description=track.description)
                         natmarks.append(p)
-                        kml.add_point('rnat', p, style=pin_style)
+                        kml.add_point('rnat', p, style=pin_rnat)
                         p = GeoPoint(track[-1], name=track.name,
                                      description=track.description)
                         natmarks.append(p)
-                        kml.add_point('rnat', p, style=pin_style)
+                        kml.add_point('rnat', p, style=pin_rnat)
                     else:
                         p = GeoPoint(track[pin_pos], name=track.name,
                                      description=track.description)
                         natmarks.append(p)
-                        kml.add_point('rnat', p, style=pin_style)
+                        kml.add_point('rnat', p, style=pin_rnat)
             else:
                 print("empty track found %s" % track.name)
 
@@ -61,18 +66,18 @@ def lido2mapsme(action_in, params, debug=False):
         kml.add_line('greatcircle', greatcircle)
 
     kml.add_line('rmain', route)
-    if params.get('Point Route', PIN_NONE) != PIN_NONE:
+    if pin_rmain != PIN_NONE:
         kml.add_points('rmain', route,
-                       excluded=natmarks, style=params['Point Route'])
+                       excluded=natmarks, style=pin_rmain)
 
     if params.get('Afficher Dégagement', False):
         alt_route = Route(ofp.wpt_coordinates_alternate,
                           name="Route Dégagement")
         kml.add_line('ralt', alt_route)
-        if params.get('Point Dégagement', PIN_NONE) != PIN_NONE:
+        if pin_ralt != PIN_NONE:
             kml.add_points(
                 'ralt', alt_route[1:],
-                style=params.get('Point Dégagement', PIN_PINK))
+                style=pin_ralt)
 
     if params.get('Afficher Ogimet', False):
         kml.add_line('ogimet',
