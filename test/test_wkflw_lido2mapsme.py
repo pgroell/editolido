@@ -77,7 +77,8 @@ def test_save_invalid_ofp(save, mock_editor, capsys):
 
 @pytest.mark.usefixtures('userdir', 'mock_dialogs')
 @pytest.mark.parametrize("save", [True, False])
-def test_load_no_backup(save, mock_editor, mock_console):
+def test_load_no_backup(save, mock_editor, mock_console, monkeypatch):
+    monkeypatch.setattr('os.listdir', lambda x: False)
     with pytest.raises(KeyboardInterrupt):
         load_or_save('',
                      save=save,
@@ -89,12 +90,10 @@ def test_load_no_backup(save, mock_editor, mock_console):
 
 @pytest.mark.usefixtures('userdir')
 @pytest.mark.parametrize("save", [True, False])
-def test_load_with_backup(save, mock_editor, mock_console, mock_dialogs,
-                          monkeypatch):
-    testdata = os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), 'data')
-    monkeypatch.setattr('editolido.workflows.lido2mapsme.get_abspath',
-                        lambda x: testdata)
+def test_load_with_backup_aborted_dialog(save, mock_editor, mock_console,
+                                         mock_dialogs, monkeypatch,
+                                         ofp_testfiles):
+    monkeypatch.setattr('os.listdir', lambda x: ofp_testfiles )
     mock_dialogs.list_dialog.return_value = False
     with pytest.raises(KeyboardInterrupt):
         load_or_save('',
@@ -104,3 +103,23 @@ def test_load_with_backup(save, mock_editor, mock_console, mock_dialogs,
     assert mock_editor.set_file_contents.called == False
     assert mock_console.alert.called == False
     assert mock_dialogs.list_dialog.called == True
+    assert mock_editor.get_file_contents.called == False
+
+
+@pytest.mark.usefixtures('userdir')
+@pytest.mark.parametrize("save", [True, False])
+def test_load_with_backup(save, mock_editor, mock_console,
+                          mock_dialogs, monkeypatch, ofp_testfiles):
+    monkeypatch.setattr('os.listdir', lambda x: ofp_testfiles )
+    choice = ofp_testfiles[0]
+    reldir = 'mydir'
+    mock_dialogs.list_dialog.return_value = choice
+    load_or_save('',
+                 save=save,
+                 reldir=reldir,
+                 filename=filename)
+    assert mock_editor.set_file_contents.called == False
+    assert mock_console.alert.called == False
+    assert mock_dialogs.list_dialog.called == True
+    assert mock_editor.get_file_contents.called_once_with(
+        os.path.join(reldir, choice))

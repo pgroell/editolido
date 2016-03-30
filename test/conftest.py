@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function
+import json
 import os
 import shutil
 import sys
@@ -21,9 +22,27 @@ def ofp_testfiles():
             and os.path.splitext(f)[1] == '.txt']
 
 
+@pytest.fixture(scope='session')
+def sigmets_testfiles():
+    _dir = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)),
+        'data')
+    return [f for f in os.listdir(_dir)
+            if os.path.isfile(os.path.join(_dir, f))
+            and os.path.splitext(f)[1] == '.json']
+
+
 @pytest.fixture(scope='session', params=ofp_testfiles())
 def ofp_filename(request):
     return request.param
+
+
+@pytest.fixture(scope='session', params=sigmets_testfiles())
+def sigmets_json(request):
+    module_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    datadir = os.path.join(os.path.join(module_dir, 'test'), 'data')
+    with open(os.path.join(datadir, request.param), 'r') as f:
+        return json.load(f)
 
 
 @pytest.fixture(scope='session', params=ofp_testfiles())

@@ -203,6 +203,7 @@ class OFP(object):
         except (LookupError, IndexError):
             raise StopIteration
 
+        # noinspection PyShadowingNames
         def nat_route_generator(text, label_dict=None):
             track_points = [p.strip() for p in text.split(' ') if p.strip()]
 

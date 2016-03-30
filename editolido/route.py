@@ -75,6 +75,9 @@ class Route(object):
     def __nonzero__(self):
         return bool(self.route)
 
+    def __len__(self):
+        return len(self.route)
+
     def split(self, max_length, converter=nm_to_rad, preserve=False,
               name="", description=""):
         """
