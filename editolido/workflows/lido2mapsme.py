@@ -7,18 +7,18 @@ def get_abspath(relpath):
     return os.path.join(os.path.expanduser('~/Documents'), relpath)
 
 
-def load_document(relpath):
+def load_document(reldir, filename):
     import editor  # EDITORIAL module
-    content = editor.get_file_contents(relpath)
+    content = editor.get_file_contents(os.path.join(reldir, filename))
     return content.decode('utf-8') if content else ''
 
 
-def save_document(content, relpath):
+def save_document(content, reldir, filename):
     import editor  # EDITORIAL module
-    absdir = get_abspath(os.path.dirname(relpath))
+    absdir = get_abspath(reldir)
     if not os.path.exists(absdir):
         os.makedirs(absdir)
-    editor.set_file_contents(relpath.replace('/', '_'),
+    editor.set_file_contents(os.path.join(reldir, filename.replace('/','_')),
                              content.encode('utf-8'))
 
 
@@ -146,14 +146,14 @@ def load_or_save(action_in, save=None, reldir=None, filename=None):
             filename = filename.format(**ofp.infos)
         except TypeError:
             filename = '_ofp_non_reconnu_.kml'
-            save_document(action_in, os.path.join(reldir, filename))
+            save_document(action_in, reldir, filename)
             print("OFP non reconnu, merci de créer un ticket (issue) sur:")
             print("https://github.com/flyingeek/editolido/issues")
             print("N'oubliez pas de joindre votre OFP en pdf.")
             print("Vous pouvez aussi le poster sur Yammer (groupe Mapsme)")
             raise KeyboardInterrupt
         else:
-            save_document(action_in, os.path.join(reldir, filename))
+            save_document(action_in, reldir, filename)
     elif not action_in:  # Load
         try:
             files = os.listdir(get_abspath(reldir))
@@ -169,7 +169,7 @@ def load_or_save(action_in, save=None, reldir=None, filename=None):
             filename = dialogs.list_dialog('Choisir un fichier', files)
             if not filename:
                 raise KeyboardInterrupt
-            return load_document(os.path.join(reldir, filename))
+            return load_document(reldir, filename)
     return action_in
 
 
@@ -208,5 +208,5 @@ def save_kml(content, save=None, reldir=None, filename=None, workflow_in=None):
                 filename = filename.format(**ofp.infos)
             except TypeError:
                 filename = '_ofp_non_reconnu_.kml'
-        save_document(content, os.path.join(reldir, filename))
+        save_document(content, reldir, filename)
     return content
