@@ -10,9 +10,10 @@ def get_sigmets_json():
     return r.json() or {}
 
 
-def add_sigmets(kml, folder, jsondata, add_pin=False):
+def add_sigmets(kml, folder, jsondata, pin):
     from editolido.geopoint import GeoPoint
     from editolido.route import Route
+    from editolido.constants import PIN_NONE
     for d in jsondata['features']:
         props = d['properties']
         geom = d['geometry']
@@ -28,19 +29,23 @@ def add_sigmets(kml, folder, jsondata, add_pin=False):
                     description=description
                 )
                 kml.add_line(folder, route)
-                if add_pin:
+                if pin != PIN_NONE:
                     kml.add_point(
                         folder,
                         GeoPoint.get_center(
                             route,
-                            name=name, description=description))
+                            name=name, description=description),
+                        style=pin
+                    )
         elif geom['type'] == 'Point':
-            kml.add_point(
-                folder,
-                GeoPoint(
-                    (geom['coordinates'][1], geom['coordinates'][0]),
-                    name=name, description=description)
-            )
+            if pin != PIN_NONE:
+                kml.add_point(
+                    folder,
+                    GeoPoint(
+                        (geom['coordinates'][1], geom['coordinates'][0]),
+                        name=name, description=description),
+                    style=pin
+                )
         else:
             print(d)
             print('unknown geometry type: %s' % geom['type'])
@@ -74,7 +79,7 @@ def lido2gramet(action_in, params=None, debug=False):
     from editolido.ofp import OFP, utc
     from editolido.kml import KMLGenerator
     from editolido.ogimet import ogimet_route
-    from editolido.constants import PIN_ORANGE, PIN_NONE
+    from editolido.constants import PIN_ORANGE
     import re
     params = params or {}
     ofp = OFP(action_in)
@@ -129,8 +134,7 @@ def lido2gramet(action_in, params=None, debug=False):
                 pass
             else:
                 try:
-                    add_sigmets(kml, 'SIGMETs',
-                                jsondata, add_pin=(pin_sigmets != PIN_NONE))
+                    add_sigmets(kml, 'SIGMETs', jsondata, pin_sigmets)
                 except ValueError:
                     pass
         return kml.render(
