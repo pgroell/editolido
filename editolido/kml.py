@@ -8,7 +8,7 @@ from editolido.constants import PINS, GOOGLE_ICONS, PIN_NONE
 default_linestyle = """
     <Style id='{0}'>
         <LineStyle>
-            <width>3</width>
+            <width>6</width>
             <color>{{{0}_color}}</color>
         </LineStyle>
     </Style>
