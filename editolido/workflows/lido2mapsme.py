@@ -31,9 +31,9 @@ def lido2mapsme(action_in, params, debug=False):
     route.description = ofp.description
 
     natmarks = []
-    if params['Afficher NAT']:
+    if params.get('Afficher NAT', False):
         pin_pos = 0 if params['Position repère'] == NAT_POSITION_ENTRY else -1
-        pin_style = params['Repère NAT']
+        pin_style = params.get('Repère NAT', PIN_NONE)
         for track in ofp.tracks:
             if track:
                 kml.add_line('rnat', track)
@@ -55,13 +55,13 @@ def lido2mapsme(action_in, params, debug=False):
             else:
                 print("empty track found %s" % track.name)
 
-    if params['Afficher Ortho']:
+    if params.get('Afficher Ortho', False):
         greatcircle = Route((route[0], route[-1])).split(
             300, name="Ortho %s" % route_name)
         kml.add_line('greatcircle', greatcircle)
 
     kml.add_line('rmain', route)
-    if params['Point Route'] != PIN_NONE:
+    if params.get('Point Route', PIN_NONE) != PIN_NONE:
         kml.add_points('rmain', route,
                        excluded=natmarks, style=params['Point Route'])
 
@@ -74,16 +74,16 @@ def lido2mapsme(action_in, params, debug=False):
                 'ralt', alt_route[1:],
                 style=params.get('Point Dégagement', PIN_PINK))
 
-    if params['Afficher Ogimet']:
+    if params.get('Afficher Ogimet', False):
         kml.add_line('ogimet',
                      ogimet_route(route, debug=debug, name="Ogimet Route"))
 
     return kml.render(
         name=ofp.description,
-        rnat_color=params['Couleur NAT'] or '60DA25A8',
-        ogimet_color=params['Couleur Ogimet'] or '50FF0000',
-        greatcircle_color=params['Couleur Ortho'] or '5F1478FF',
-        rmain_color=params['Couleur Route'] or 'FFDA25A8',
+        rnat_color=params.get('Couleur NAT', '') or '60DA25A8',
+        ogimet_color=params.get('Couleur Ogimet', '')  or '50FF0000',
+        greatcircle_color=params.get('Couleur Ortho', '')  or '5F1478FF',
+        rmain_color=params.get('Couleur Route', '')  or 'FFDA25A8',
         ralt_color=params.get('Couleur Dégagement', '') or 'FFFF00FF'
     )
 
@@ -112,39 +112,34 @@ def load_or_save(action_in, save=None, reldir=None, filename=None):
     reldir = params.get('Dossier', '') or '_lido2mapsme_/data'
     workflow.set_output(load_or_save(action_in, save=save, reldir=reldir, filename=filename))
     """
-    # noinspection PyUnresolvedReferences
     import console  # EDITORIAL module
-    # noinspection PyUnresolvedReferences
     import dialogs  # EDITORIAL module
-    # noinspection PyUnresolvedReferences
     import editor  # EDITORIAL module
-    # noinspection PyUnresolvedReferences
-    import workflow
 
     from editolido.ofp import OFP
-    unknown_ofp = '_ofp_non_reconnu_.txt'
     ofp = None
     if action_in:
         ofp = OFP(action_in)
         if not ofp.infos:
-            filename = unknown_ofp
-            save = True
+            save = True  # force saving of unknown ofp
     if save and action_in:
-        if filename == unknown_ofp:
-            relpath = os.path.join(reldir, unknown_ofp)
-        else:
-            relpath = os.path.join(
-                reldir, filename.format(**ofp.infos).replace('/', '_'))
-        absdir = os.path.dirname(get_abspath(relpath))
+        absdir = get_abspath(reldir)
         if not os.path.exists(absdir):
             os.makedirs(absdir)
-        editor.set_file_contents(relpath, action_in.encode('utf-8'))
-        if filename == unknown_ofp:
+        try:
+            relpath = os.path.join(
+                reldir, filename.format(**ofp.infos).replace('/', '_'))
+        except TypeError:
+            editor.set_file_contents(
+                os.path.join(reldir, '_ofp_non_reconnu_.txt'),
+                action_in.encode('utf-8'))
             print("OFP non reconnu, merci de créer un ticket (issue) sur:")
             print("https://github.com/flyingeek/editolido/issues")
             print("N'oubliez pas de joindre votre OFP en pdf.")
             print("Vous pouvez aussi le poster sur Yammer (groupe Mapsme)")
             raise KeyboardInterrupt
+        else:
+            editor.set_file_contents(relpath, action_in.encode('utf-8'))
     elif not action_in:  # Load
         try:
             files = os.listdir(get_abspath(reldir))
@@ -155,12 +150,10 @@ def load_or_save(action_in, save=None, reldir=None, filename=None):
                           'sauvegarder au moins une fois',
                           'Annuler',
                           hide_cancel_button=True)
-            workflow.stop()
             raise KeyboardInterrupt
         else:
             filename = dialogs.list_dialog('Choisir un fichier', files)
             if not filename:
-                workflow.stop()
                 raise KeyboardInterrupt
             relpath = os.path.join(reldir, filename)
             content = editor.get_file_contents(relpath)
@@ -194,22 +187,22 @@ def save_kml(content, save=None, reldir=None, filename=None, workflow_in=None):
     reldir = params.get('Dossier', '') or '_lido2mapsme_/KML'
     workflow.set_output(save_kml(content, save=save, reldir=reldir, filename=filename, workflow_in=workflow_in))
     """
-    # noinspection PyUnresolvedReferences
-    import console  # EDITORIAL module
-    # noinspection PyUnresolvedReferences
     import editor  # EDITORIAL module
-    # noinspection PyUnresolvedReferences
-    import workflow
 
     if save:
         from editolido.ofp import OFP
         ofp = OFP(workflow_in)
-        relpath = os.path.join(reldir,
-                               filename.format(**ofp.infos).replace('/', '_'))
-        absdir = os.path.dirname(get_abspath(relpath))
+        absdir = get_abspath(reldir)
         if content:
             if not os.path.exists(absdir):
                 os.makedirs(absdir)
+            try:
+                relpath = os.path.join(
+                    reldir,
+                    filename.format(**ofp.infos).replace('/', '_'))
+            except TypeError:
+                relpath = os.path.join(reldir,
+                                       '_ofp_non_reconnu_.kml')
             editor.set_file_contents(relpath,
                                      content.encode('utf-8'))
     return content

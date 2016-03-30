@@ -9,7 +9,7 @@ import mock
 
 class TestCore(TestCase):
 
-    def test_raw_content_url(self):
+    def test_raw_content_url_my_repo_tag(self):
         from editolido.core import raw_content_url
         self.assertEqual(
             raw_content_url(
@@ -17,6 +17,9 @@ class TestCore(TestCase):
             'https://raw.githubusercontent.com/flyingeek/editolido/master'
             '/editolido/bootstrap_editorial.py'
         )
+
+    def test_raw_content_url_my_repo_branch(self):
+        from editolido.core import raw_content_url
         self.assertEqual(
             raw_content_url(
                 'https://github.com/flyingeek/editolido/archive/mybranch.zip',
@@ -24,6 +27,9 @@ class TestCore(TestCase):
             'https://raw.githubusercontent.com/flyingeek/editolido/mybranch'
             '/editolido/test.json'
         )
+
+    def test_raw_content_url_another_repo_branch(self):
+        from editolido.core import raw_content_url
         self.assertEqual(
             raw_content_url(
                 'https://github.com/another/editolido2/archive/mybranch.zip'),
@@ -32,7 +38,7 @@ class TestCore(TestCase):
         )
 
     @mock.patch('editolido.core.logger')
-    def test_raw_content_url_using_latest(self, logger):
+    def test_raw_content_url_uses_latest_if_empty(self, logger):
         from editolido.core import raw_content_url
         self.assertEqual(
             raw_content_url(''),
@@ -42,7 +48,7 @@ class TestCore(TestCase):
         logger.info.assert_not_called()
 
     @mock.patch('editolido.core.logger')
-    def test_raw_content_url_default(self, logger):
+    def test_raw_content_url_uses_default_if_invalid(self, logger):
         from editolido.core import raw_content_url
         self.assertEqual(
             raw_content_url('blabla'),
@@ -52,7 +58,7 @@ class TestCore(TestCase):
         logger.info.assert_called_with('using default bootstrap url')
 
     @mock.patch('editolido.core.logger')
-    def test_get_latest_version_infos_404(self, logger):
+    def test_get_latest_version_output_404_if_doesnotexists(self, logger):
         from editolido.core import get_latest_version_infos
         import requests
         with self.assertRaises(requests.exceptions.RequestException):
