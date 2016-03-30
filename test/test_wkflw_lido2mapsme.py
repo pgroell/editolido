@@ -53,7 +53,7 @@ def test_save_kml(ofp_text_or_empty, save, content, mock_editor):
         mock_editor.set_file_contents.assert_called_once_with(
             mock.ANY, content)
     else:
-        assert mock_editor.called == False
+        assert mock_editor.set_file_contents.called == False
     assert out == content
 
 

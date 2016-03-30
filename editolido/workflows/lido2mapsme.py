@@ -19,7 +19,7 @@ def save_document(content, reldir, filename):
     if not os.path.exists(absdir):
         os.makedirs(absdir)
     editor.set_file_contents(os.path.join(reldir, filename.replace('/','_')),
-                             content.encode('utf-8'))
+                             content.encode('utf-8') if content else '')
 
 
 def lido2mapsme(action_in, params, debug=False):
@@ -208,5 +208,5 @@ def save_kml(content, save=None, reldir=None, filename=None, workflow_in=None):
                 filename = filename.format(**ofp.infos)
             except TypeError:
                 filename = '_ofp_non_reconnu_.kml'
-        save_document(content, reldir, filename)
+            save_document(content, reldir, filename)
     return content
