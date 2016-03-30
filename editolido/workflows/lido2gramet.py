@@ -118,28 +118,48 @@ def lido2gramet(action_in, params=None, debug=False):
         pass
     if debug:
         print(url)
-    if params.get('Générer KML', False):
+
+    switch_sigmets = params.get('Afficher SIGMETs', True)
+    switch_ogimet = params.get('Afficher Ogimet', True)
+
+    switch_kml = params.get('Générer KML', None)  # compatibility mode
+    if switch_kml is not None:
+        if switch_kml:
+            switch_ogimet = True
+            switch_sigmets = True
+        else:
+            switch_ogimet = False
+            switch_sigmets = False
+
+    if not switch_ogimet and not  switch_sigmets:
+        return ''
+
+    if switch_ogimet:
         kml.add_folder('ogimet')
         kml.add_line('ogimet', route)
-        tref_dt = datetime.datetime.fromtimestamp(tref, tz=utc)
-        name = ("Route Gramet {flight} {departure}-{destination} "
-                "{tref_dt:%d%b%Y %H:%M}z OFP {ofp}"
-                .format(tref_dt=tref_dt, **ofp.infos))
-        if params.get('Inclure SIGMETs', True):
-            pin_sigmets = params.get('Label SIGMET', PIN_ORANGE)
-            kml.add_folder('SIGMETs', pin=pin_sigmets)
+
+    if switch_sigmets:
+        pin_sigmets = params.get('Label SIGMET', PIN_ORANGE)
+        kml.add_folder('SIGMETs', pin=pin_sigmets)
+        try:
+            jsondata = get_sigmets_json() or {}
+        except requests.exceptions.RequestException:
+            pass
+        else:
             try:
-                jsondata = get_sigmets_json() or {}
-            except requests.exceptions.RequestException:
+                add_sigmets(kml, 'SIGMETs', jsondata, pin_sigmets)
+            except ValueError:
                 pass
-            else:
-                try:
-                    add_sigmets(kml, 'SIGMETs', jsondata, pin_sigmets)
-                except ValueError:
-                    pass
-        return kml.render(
-            name=name,
-            ogimet_color=params.get('Couleur Ogimet', '') or '50FF0000',
-            SIGMETs_color=params.get('Couleur SIGMET', '') or '50143CFA')
-    return ''
+
+    name = ("Route Gramet/SIGMETs {flight} {departure}-{destination} "
+            "{tref_dt:%d%b%Y %H:%M}z OFP {ofp}"
+        .format(
+            tref_dt=datetime.datetime.fromtimestamp(tref, tz=utc),
+            **ofp.infos)
+    )
+    return kml.render(
+        name=name,
+        ogimet_color=params.get('Couleur Ogimet', '') or '40FF0000',
+        SIGMETs_color=params.get('Couleur SIGMET', '') or '50143CFA')
+
 
