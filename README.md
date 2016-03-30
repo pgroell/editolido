@@ -50,6 +50,9 @@ Lido2Gramet+ s'utilise comme Lido2Mapsme+. Pour "Revoir Gramet", soit on double 
 
 Changements:
 ------------
+##v1.0.6
+ - KML renders nicely in Google Earth
+
 ##v1.0.5
  - Fix Gramet utc timestamp
 
