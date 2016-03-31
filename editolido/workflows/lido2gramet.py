@@ -10,10 +10,9 @@ def get_sigmets_json():
     return r.json() or {}
 
 
-def add_sigmets(kml, folder, jsondata, pin):
+def add_sigmets(kml, folder, jsondata):
     from editolido.geopoint import GeoPoint
     from editolido.route import Route
-    from editolido.constants import PIN_NONE
     for d in jsondata['features']:
         props = d['properties']
         geom = d['geometry']
@@ -29,23 +28,19 @@ def add_sigmets(kml, folder, jsondata, pin):
                     description=description
                 )
                 kml.add_line(folder, route)
-                if pin != PIN_NONE:
-                    kml.add_point(
-                        folder,
-                        GeoPoint.get_center(
-                            route,
-                            name=name, description=description),
-                        style=pin
-                    )
-        elif geom['type'] == 'Point':
-            if pin != PIN_NONE:
                 kml.add_point(
                     folder,
-                    GeoPoint(
-                        (geom['coordinates'][1], geom['coordinates'][0]),
+                    GeoPoint.get_center(
+                        route,
                         name=name, description=description),
-                    style=pin
                 )
+        elif geom['type'] == 'Point':
+            kml.add_point(
+                folder,
+                GeoPoint(
+                    (geom['coordinates'][1], geom['coordinates'][0]),
+                    name=name, description=description),
+            )
         else:
             print(d)
             print('unknown geometry type: %s' % geom['type'])
@@ -122,17 +117,9 @@ def lido2gramet(action_in, params=None, debug=False):
     switch_sigmets = params.get('Afficher SIGMETs', True)
     switch_ogimet = params.get('Afficher Ogimet', True)
 
-    switch_kml = params.get('Générer KML', None)  # compatibility mode
+    switch_kml = params.get('Générer KML', None)  # 1.0.x compatibility
     if switch_kml is not None:
-        if switch_kml:
-            switch_ogimet = True
-            switch_sigmets = True
-        else:
-            switch_ogimet = False
-            switch_sigmets = False
-
-    if not switch_ogimet and not  switch_sigmets:
-        return ''
+        switch_ogimet = switch_sigmets = switch_kml
 
     if switch_ogimet:
         kml.add_folder('ogimet')
@@ -147,7 +134,7 @@ def lido2gramet(action_in, params=None, debug=False):
             pass
         else:
             try:
-                add_sigmets(kml, 'SIGMETs', jsondata, pin_sigmets)
+                add_sigmets(kml, 'SIGMETs', jsondata)
             except ValueError:
                 pass
 
@@ -157,9 +144,11 @@ def lido2gramet(action_in, params=None, debug=False):
             tref_dt=datetime.datetime.fromtimestamp(tref, tz=utc),
             **ofp.infos)
     )
-    return kml.render(
-        name=name,
-        ogimet_color=params.get('Couleur Ogimet', '') or '40FF0000',
-        SIGMETs_color=params.get('Couleur SIGMET', '') or '50143CFA')
+    if switch_ogimet or switch_sigmets:
+        return kml.render(
+            name=name,
+            ogimet_color=params.get('Couleur Ogimet', '') or '40FF0000',
+            SIGMETs_color=params.get('Couleur SIGMET', '') or '50143CFA')
+    return ''
 
 

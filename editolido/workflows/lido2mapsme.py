@@ -94,14 +94,14 @@ def lido2mapsme(action_in, params, debug=False):
                 'ralt', alt_route[1:],
                 style=pin_ralt)
 
-    if params.get('Afficher Ogimet', False):
+    if params.get('Afficher Ogimet', False):  # 1.0.x compatible
         kml.add_line('ogimet',
                      ogimet_route(route, debug=debug, name="Ogimet Route"))
 
     return kml.render(
         name=ofp.description,
         rnat_color=params.get('Couleur NAT', '') or '60DA25A8',
-        ogimet_color=params.get('Couleur Ogimet', '')  or '50FF0000',
+        ogimet_color=params.get('Couleur Ogimet', '')  or '40FF0000',
         greatcircle_color=params.get('Couleur Ortho', '')  or '5F1478FF',
         rmain_color=params.get('Couleur Route', '')  or 'FFDA25A8',
         ralt_color=params.get('Couleur Dégagement', '') or 'FFFF00FF'
