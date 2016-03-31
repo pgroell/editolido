@@ -175,6 +175,23 @@ class GeoPoint(object):
         """
         return geopoint1.distance_to(geopoint2, converter=converter)
 
+    @classmethod
+    def get_center(cls, points, **kwargs):
+        x = y = z = 0
+        how_many = len(points)
+        for p in points:
+            rlat, phi = p.latphi
+            x += math.cos(rlat) * math.cos(phi)
+            y += math.cos(rlat) * math.sin(phi)
+            z += math.sin(rlat)
+
+        x = float(x / how_many)
+        y = float(y / how_many)
+        z = float(z / how_many)
+        rlat = math.atan2(z, math.sqrt(math.pow(x, 2) + math.pow(y, 2)))
+        phi = math.atan2(y, x)
+        return cls((rlat, phi), normalizer=latphi2latlng, **kwargs)
+
     def distance_to(self, other, converter=None):
         """
         Get the spherical distance from another GeoPoint

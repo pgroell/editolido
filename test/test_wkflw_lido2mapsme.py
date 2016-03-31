@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import os
-
+import six
 import pytest
 import mock
 
-from editolido.workflows.lido2mapsme import lido2mapsme, save_kml, load_or_save
+from editolido.workflows.lido2mapsme import lido2mapsme, save_kml, load_or_save, \
+    save_document, load_document, copy_lido_route
 import editolido.constants as constants
 
 filename = '{flight}_{departure}-{destination}_{date}_{datetime:%H:%M}z_' \
@@ -29,6 +29,28 @@ def test_lido2mapsme_output_is_kml(ofp_text):
     assert '<kml ' in output
 
 
+def test_load_document(mock_editor):
+    mock_editor.get_file_contents.return_value = 'content éè'.encode('utf-8')
+    out = load_document('', '')
+    assert type(out) == six.text_type
+    assert  out == 'content éè'
+    mock_editor.get_file_contents.return_value = None
+    out = load_document('', '')
+    assert type(out) == six.text_type
+    assert  out == ''
+
+@pytest.mark.usefixtures('userdir')
+def test_save_document(mock_editor, monkeypatch):
+    monkeypatch.setattr('os.makedirs', lambda x: True)
+    reldir = 'mydir/subdir/'
+    name = 'filename / with slash'
+    save_document('unicode éè', reldir, name)
+    relpath, content = mock_editor.set_file_contents.call_args[0]
+    basename = relpath.replace(reldir, '')
+    assert basename == 'filename _ with slash'  # no more
+    assert type(content) == six.binary_type
+
+
 @pytest.mark.usefixtures('userdir')
 @pytest.mark.parametrize("save", [True, False])
 @pytest.mark.parametrize("content", ['', 'my content'])
@@ -42,16 +64,17 @@ def test_save_kml(ofp_text_or_empty, save, content, mock_editor):
         mock_editor.set_file_contents.assert_called_once_with(
             mock.ANY, content)
     else:
-        assert mock_editor.called == False
+        assert mock_editor.set_file_contents.called == False
     assert out == content
 
 
 @pytest.mark.usefixtures('userdir', 'mock_console', 'mock_dialogs')
 @pytest.mark.parametrize("save", [True, False])
 def test_save(ofp_text, save, mock_editor):
+    reldir = 'mydir'
     out = load_or_save(ofp_text,
                        save=save,
-                       reldir='mydir',
+                       reldir=reldir,
                        filename=filename)
     if save:
         mock_editor.set_file_contents.assert_called_once_with(
@@ -64,24 +87,27 @@ def test_save(ofp_text, save, mock_editor):
 @pytest.mark.usefixtures('userdir', 'mock_console', 'mock_dialogs')
 @pytest.mark.parametrize("save", [True, False])
 def test_save_invalid_ofp(save, mock_editor, capsys):
+    reldir = 'mydir'
     with pytest.raises(KeyboardInterrupt):
         load_or_save('invalid ofp',
                      save=save,
-                     reldir='mydir',
+                     reldir=reldir,
                      filename=filename)
     mock_editor.set_file_contents.assert_called_once_with(
-        mock.ANY, 'invalid ofp')
+        reldir + '/_ofp_non_reconnu_.kml', 'invalid ofp')
     out, _ = capsys.readouterr()
     assert out
 
 
 @pytest.mark.usefixtures('userdir', 'mock_dialogs')
 @pytest.mark.parametrize("save", [True, False])
-def test_load_no_backup(save, mock_editor, mock_console):
+def test_load_no_backup(save, mock_editor, mock_console, monkeypatch):
+    monkeypatch.setattr('os.listdir', lambda x: False)
+    reldir = 'mydir'
     with pytest.raises(KeyboardInterrupt):
         load_or_save('',
                      save=save,
-                     reldir='mydir',
+                     reldir=reldir,
                      filename=filename)
     assert mock_editor.set_file_contents.called == False
     assert mock_console.alert.called == True
@@ -89,12 +115,10 @@ def test_load_no_backup(save, mock_editor, mock_console):
 
 @pytest.mark.usefixtures('userdir')
 @pytest.mark.parametrize("save", [True, False])
-def test_load_with_backup(save, mock_editor, mock_console, mock_dialogs,
-                          monkeypatch):
-    testdata = os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), 'data')
-    monkeypatch.setattr('editolido.workflows.lido2mapsme.get_abspath',
-                        lambda x: testdata)
+def test_load_with_backup_aborted_dialog(save, mock_editor, mock_console,
+                                         mock_dialogs, monkeypatch,
+                                         ofp_testfiles):
+    monkeypatch.setattr('os.listdir', lambda x: ofp_testfiles )
     mock_dialogs.list_dialog.return_value = False
     with pytest.raises(KeyboardInterrupt):
         load_or_save('',
@@ -104,3 +128,36 @@ def test_load_with_backup(save, mock_editor, mock_console, mock_dialogs,
     assert mock_editor.set_file_contents.called == False
     assert mock_console.alert.called == False
     assert mock_dialogs.list_dialog.called == True
+    assert mock_editor.get_file_contents.called == False
+
+
+@pytest.mark.usefixtures('userdir')
+@pytest.mark.parametrize("save", [True, False])
+def test_load_with_backup(save, mock_editor, mock_console,
+                          mock_dialogs, monkeypatch, ofp_testfiles):
+    monkeypatch.setattr('os.listdir', lambda x: ofp_testfiles )
+    choice = ofp_testfiles[0]
+    reldir = 'mydir'
+    mock_dialogs.list_dialog.return_value = choice
+    load_or_save('',
+                 save=save,
+                 reldir=reldir,
+                 filename=filename)
+    assert mock_editor.set_file_contents.called == False
+    assert mock_console.alert.called == False
+    assert mock_dialogs.list_dialog.called == True
+    assert mock_editor.get_file_contents.called_once_with(reldir, choice)
+
+
+@pytest.mark.parametrize("copy", [True, False])
+def test_copy_lido_route(ofp_text, copy, mock_clipboard, mock_console):
+    params = {
+        'Copier': copy,
+        'Durée': 1,
+        'Notification': 'notification'
+    }
+    out = copy_lido_route(ofp_text, params)
+    assert out == ofp_text
+    if copy:
+        assert mock_clipboard.set.called
+        assert mock_console.hud_alert.called

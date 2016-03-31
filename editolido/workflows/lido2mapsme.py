@@ -7,6 +7,21 @@ def get_abspath(relpath):
     return os.path.join(os.path.expanduser('~/Documents'), relpath)
 
 
+def load_document(reldir, filename):
+    import editor  # EDITORIAL module
+    content = editor.get_file_contents(os.path.join(reldir, filename))
+    return content.decode('utf-8') if content else ''
+
+
+def save_document(content, reldir, filename):
+    import editor  # EDITORIAL module
+    absdir = get_abspath(reldir)
+    if not os.path.exists(absdir):
+        os.makedirs(absdir)
+    editor.set_file_contents(os.path.join(reldir, filename.replace('/','_')),
+                             content.encode('utf-8') if content else '')
+
+
 def lido2mapsme(action_in, params, debug=False):
     """
     Lido2Mapsme KML rendering action
@@ -79,14 +94,14 @@ def lido2mapsme(action_in, params, debug=False):
                 'ralt', alt_route[1:],
                 style=pin_ralt)
 
-    if params.get('Afficher Ogimet', False):
+    if params.get('Afficher Ogimet', False):  # 1.0.x compatible
         kml.add_line('ogimet',
                      ogimet_route(route, debug=debug, name="Ogimet Route"))
 
     return kml.render(
         name=ofp.description,
         rnat_color=params.get('Couleur NAT', '') or '60DA25A8',
-        ogimet_color=params.get('Couleur Ogimet', '')  or '50FF0000',
+        ogimet_color=params.get('Couleur Ogimet', '')  or '40FF0000',
         greatcircle_color=params.get('Couleur Ortho', '')  or '5F1478FF',
         rmain_color=params.get('Couleur Route', '')  or 'FFDA25A8',
         ralt_color=params.get('Couleur Dégagement', '') or 'FFFF00FF'
@@ -119,7 +134,6 @@ def load_or_save(action_in, save=None, reldir=None, filename=None):
     """
     import console  # EDITORIAL module
     import dialogs  # EDITORIAL module
-    import editor  # EDITORIAL module
 
     from editolido.ofp import OFP
     ofp = None
@@ -128,23 +142,18 @@ def load_or_save(action_in, save=None, reldir=None, filename=None):
         if not ofp.infos:
             save = True  # force saving of unknown ofp
     if save and action_in:
-        absdir = get_abspath(reldir)
-        if not os.path.exists(absdir):
-            os.makedirs(absdir)
         try:
-            relpath = os.path.join(
-                reldir, filename.format(**ofp.infos).replace('/', '_'))
+            filename = filename.format(**ofp.infos)
         except TypeError:
-            editor.set_file_contents(
-                os.path.join(reldir, '_ofp_non_reconnu_.txt'),
-                action_in.encode('utf-8'))
+            filename = '_ofp_non_reconnu_.kml'
+            save_document(action_in, reldir, filename)
             print("OFP non reconnu, merci de créer un ticket (issue) sur:")
             print("https://github.com/flyingeek/editolido/issues")
             print("N'oubliez pas de joindre votre OFP en pdf.")
             print("Vous pouvez aussi le poster sur Yammer (groupe Mapsme)")
             raise KeyboardInterrupt
         else:
-            editor.set_file_contents(relpath, action_in.encode('utf-8'))
+            save_document(action_in, reldir, filename)
     elif not action_in:  # Load
         try:
             files = os.listdir(get_abspath(reldir))
@@ -160,9 +169,7 @@ def load_or_save(action_in, save=None, reldir=None, filename=None):
             filename = dialogs.list_dialog('Choisir un fichier', files)
             if not filename:
                 raise KeyboardInterrupt
-            relpath = os.path.join(reldir, filename)
-            content = editor.get_file_contents(relpath)
-            return content.decode('utf-8') if content else ''
+            return load_document(reldir, filename)
     return action_in
 
 
@@ -192,22 +199,46 @@ def save_kml(content, save=None, reldir=None, filename=None, workflow_in=None):
     reldir = params.get('Dossier', '') or '_lido2mapsme_/KML'
     workflow.set_output(save_kml(content, save=save, reldir=reldir, filename=filename, workflow_in=workflow_in))
     """
-    import editor  # EDITORIAL module
 
     if save:
         from editolido.ofp import OFP
         ofp = OFP(workflow_in)
-        absdir = get_abspath(reldir)
         if content:
-            if not os.path.exists(absdir):
-                os.makedirs(absdir)
             try:
-                relpath = os.path.join(
-                    reldir,
-                    filename.format(**ofp.infos).replace('/', '_'))
+                filename = filename.format(**ofp.infos)
             except TypeError:
-                relpath = os.path.join(reldir,
-                                       '_ofp_non_reconnu_.kml')
-            editor.set_file_contents(relpath,
-                                     content.encode('utf-8'))
+                filename = '_ofp_non_reconnu_.kml'
+            save_document(content, reldir, filename)
     return content
+
+
+def copy_lido_route(action_in, params):
+    """
+    Copy the Lido route into the clipboard
+    :param action_in: the input passed to the action
+    :param params: the workflow parameters for the action
+
+    Usage from Editorial is:
+
+    # -*- coding: utf-8 -*-
+    from __future__ import unicode_literals
+    import workflow
+    from editolido.workflows.lido2mapsme import copy_lido_route
+
+
+    params = workflow.get_parameters()
+    action_in = workflow.get_input()
+    workflow.set_output(copy_lido_route(action_in, params))
+
+    """
+    from editolido.ofp import OFP
+    import clipboard  # EDITORIAL Module
+    import console  # EDITORIAL Module
+
+    if params['Copier']:
+        ofp = OFP(action_in)
+        clipboard.set(' '.join(ofp.lido_route))
+        if params['Durée'] > 0 and params['Notification']:
+            console.hud_alert(params['Notification'], 'success',
+                              float(params['Durée']))
+    return action_in

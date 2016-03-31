@@ -2,13 +2,18 @@
 from __future__ import unicode_literals
 from collections import OrderedDict
 import os
+import sys
+if sys.version_info < (3,):
+    integer_types = (int, long,)
+else:
+    integer_types = (int,)
 
 from editolido.constants import PINS, GOOGLE_ICONS, PIN_NONE
 
 default_linestyle = """
     <Style id='{0}'>
         <LineStyle>
-            <width>3</width>
+            <width>6</width>
             <color>{{{0}_color}}</color>
         </LineStyle>
     </Style>
@@ -50,6 +55,7 @@ class KMLGenerator(object):
         self.icon_template = icon_template
         self.folders = OrderedDict()
         self.styles = OrderedDict()
+        self.folder_styles = OrderedDict()
 
     @staticmethod
     def escape(text):
@@ -59,13 +65,21 @@ class KMLGenerator(object):
         text = text.replace("\"", "&quot;")
         return text
 
-    def add_folder(self, name, pin=None):
+    def add_folder(self, name, pin=PIN_NONE):
+        """
+        Add a folder and a style to the kml
+        If there is no pin you must specify style for points added into
+        that folder
+        :param name: the folder name
+        :param pin: a default pin for points in the folder
+        """
         self.folders[name] = []
         style = self.style_template.format(name)
-        if pin is not None and pin != PIN_NONE:
+        if pin != PIN_NONE:
             style += self.icon_template.format(
                 PINS[pin][1:], GOOGLE_ICONS[pin])
         self.styles[name] = style
+        self.folder_styles[name] = PINS[pin]
 
     def add_folders(self, *values):
         for value in values:
@@ -88,7 +102,7 @@ class KMLGenerator(object):
         style = kwargs.get('style', None)
         if style is None:
             kwargs['style'] = '#' + folder
-        elif isinstance(style, (long, int)):
+        elif isinstance(style, integer_types):
             kwargs['style'] = PINS[style]
 
     def add_line(self, folder, route, **kwargs):
@@ -118,6 +132,9 @@ class KMLGenerator(object):
         :param route: Route
         :param excluded: list of GeoPoint to exclude from rendering
         :param kwargs: optional args passed to the renderer
+
+        If folder does not have a pin set, points must define style kwargs
+        otherwise nothing is added
         """
         self._update_kwargs(folder, kwargs)
         excluded = excluded or []
@@ -131,17 +148,22 @@ class KMLGenerator(object):
         :param folder: folder name
         :param geopoint: GeoPoint
         :param kwargs: optional args passed to the renderer
+
+        If folder does not have a pin set, point must define style kwargs
+        otherwise nothing is added
         """
+        kwargs.setdefault('style', self.folder_styles[folder])
         self._update_kwargs(folder, kwargs)
-        coordinates = "{lng:.6f},{lat:.6f}".format(
-            lat=geopoint.latitude, lng=geopoint.longitude)
-        variables = dict(
-            name=geopoint.name or '',
-            description=geopoint.description or '')
-        variables.update(kwargs)
-        self.folders[folder].append(self.point_template.format(
-            coordinates=coordinates,
-            **variables))
+        if kwargs['style'] != PINS[PIN_NONE]:
+            coordinates = "{lng:.6f},{lat:.6f}".format(
+                lat=geopoint.latitude, lng=geopoint.longitude)
+            variables = dict(
+                name=geopoint.name or '',
+                description=geopoint.description or '')
+            variables.update(kwargs)
+            self.folders[folder].append(self.point_template.format(
+                coordinates=coordinates,
+                **variables))
 
     def render(self, **kwargs):
         """

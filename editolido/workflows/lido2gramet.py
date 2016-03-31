@@ -1,7 +1,50 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function
+import requests
 
-from editolido.ofp import utc
+
+def get_sigmets_json():
+    r = requests.get(
+        'http://www.aviationweather.gov/gis/scripts/IsigmetJSON.php'
+        '?type=all&bbox=-180,-90,180,90')
+    return r.json() or {}
+
+
+def add_sigmets(kml, folder, jsondata):
+    from editolido.geopoint import GeoPoint
+    from editolido.route import Route
+    for d in jsondata['features']:
+        props = d['properties']
+        geom = d['geometry']
+        name = "{firName}: {qualifier} {hazard}".format(**props)
+        description = "{rawSigmet}".format(**props)
+        if geom['type'] == 'LineString':
+            geom['coordinates'] = [geom['coordinates']]
+        if geom['type'] in ('Polygon', 'LineString'):
+            for area in geom['coordinates']:
+                route = Route(
+                    [GeoPoint((lat, lon)) for lon, lat in area],
+                    name=name,
+                    description=description
+                )
+                kml.add_line(folder, route)
+                kml.add_point(
+                    folder,
+                    GeoPoint.get_center(
+                        route,
+                        name=name, description=description),
+                )
+        elif geom['type'] == 'Point':
+            kml.add_point(
+                folder,
+                GeoPoint(
+                    (geom['coordinates'][1], geom['coordinates'][0]),
+                    name=name, description=description),
+            )
+        else:
+            print(d)
+            print('unknown geometry type: %s' % geom['type'])
+            raise ValueError
 
 
 def lido2gramet(action_in, params=None, debug=False):
@@ -28,9 +71,10 @@ def lido2gramet(action_in, params=None, debug=False):
     import datetime
     import calendar
     import time
-    from editolido.ofp import OFP
+    from editolido.ofp import OFP, utc
     from editolido.kml import KMLGenerator
     from editolido.ogimet import ogimet_route
+    from editolido.constants import PIN_ORANGE
     import re
     params = params or {}
     ofp = OFP(action_in)
@@ -69,15 +113,42 @@ def lido2gramet(action_in, params=None, debug=False):
         pass
     if debug:
         print(url)
-    if params.get('Générer KML', False):
+
+    switch_sigmets = params.get('Afficher SIGMETs', True)
+    switch_ogimet = params.get('Afficher Ogimet', True)
+
+    switch_kml = params.get('Générer KML', None)  # 1.0.x compatibility
+    if switch_kml is not None:
+        switch_ogimet = switch_sigmets = switch_kml
+
+    if switch_ogimet:
         kml.add_folder('ogimet')
         kml.add_line('ogimet', route)
-        tref_dt = datetime.datetime.fromtimestamp(tref, tz=utc)
-        name = ("Route Gramet {flight} {departure}-{destination} "
-                "{tref_dt:%d%b%Y %H:%M}z OFP {ofp}"
-                .format(tref_dt=tref_dt, **ofp.infos))
+
+    if switch_sigmets:
+        pin_sigmets = params.get('Label SIGMET', PIN_ORANGE)
+        kml.add_folder('SIGMETs', pin=pin_sigmets)
+        try:
+            jsondata = get_sigmets_json() or {}
+        except requests.exceptions.RequestException:
+            pass
+        else:
+            try:
+                add_sigmets(kml, 'SIGMETs', jsondata)
+            except ValueError:
+                pass
+
+    name = ("Route Gramet/SIGMETs {flight} {departure}-{destination} "
+            "{tref_dt:%d%b%Y %H:%M}z OFP {ofp}"
+        .format(
+            tref_dt=datetime.datetime.fromtimestamp(tref, tz=utc),
+            **ofp.infos)
+    )
+    if switch_ogimet or switch_sigmets:
         return kml.render(
             name=name,
-            ogimet_color=params.get('Couleur Ogimet', '') or '50FF0000')
+            ogimet_color=params.get('Couleur Ogimet', '') or '40FF0000',
+            SIGMETs_color=params.get('Couleur SIGMET', '') or '50143CFA')
     return ''
+
 

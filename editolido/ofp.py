@@ -2,7 +2,6 @@
 from __future__ import unicode_literals, print_function
 import itertools
 import re
-import sys
 from datetime import datetime, timedelta, tzinfo, time
 from editolido.route import Route, Track
 from editolido.geopoint import GeoPoint, dm_normalizer, arinc_normalizer
@@ -113,7 +112,7 @@ class OFP(object):
             s = self.get_between(tag, '----')
         except LookupError:
             self.log_error("%s not found" % tag)
-            sys.exit()
+            raise KeyboardInterrupt
         return self.wpt_coordinates_generator(s)
 
     @property
@@ -203,6 +202,7 @@ class OFP(object):
         except (LookupError, IndexError):
             raise StopIteration
 
+        # noinspection PyShadowingNames
         def nat_route_generator(text, label_dict=None):
             track_points = [p.strip() for p in text.split(' ') if p.strip()]
 

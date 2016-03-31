@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from unittest import TestCase
 
+from editolido.constants import PIN_ORANGE, PIN_RED
 from editolido.kml import KMLGenerator
 
 
@@ -53,42 +54,62 @@ class TestKMLGenerator(TestCase):
         kml.add_points('aFolder', route, color="blouge")
         self.assertEqual(''.join(kml.folders['aFolder']), 'blouge' * 2)
 
-    def test_add_point(self):
+    def test_add_point_no_pin_set_in_folder(self):
         kml = KMLGenerator(point_template="{name} {color}")
         kml.add_folder('aFolder')
         from editolido.geopoint import GeoPoint
-        kml.add_point('aFolder', GeoPoint((0, 0), name="P1"), color="blouge")
+        kml.add_point('aFolder', GeoPoint((0, 0), name="P1"))
+        self.assertFalse(kml.folders['aFolder'])
+        kml.add_point('aFolder', GeoPoint((0, 0), name="P1"),
+                      color="blouge", style='#style')
         self.assertEqual(kml.folders['aFolder'][0], 'P1 blouge')
+
+    def test_add_point_pin_set_in_folder(self):
+        kml = KMLGenerator(point_template="{name} {color} {style}")
+        kml.add_folder('aFolder', pin=PIN_ORANGE)
+        from editolido.geopoint import GeoPoint
+        kml.add_point('aFolder', GeoPoint((0, 0), name="P1"), color="blouge")
+        self.assertEqual(kml.folders['aFolder'][0],
+                         'P1 blouge #placemark-orange')
+        kml.add_point('aFolder', GeoPoint((0, 0), name="P1"),
+                      color="blouge", style=PIN_RED)
+        self.assertEqual(kml.folders['aFolder'][1],
+                         'P1 blouge #placemark-red')
 
     def test_render(self):
         kml = KMLGenerator(folder_template="{name} {open} {content}",
-                           point_template="{name} {color}",
+                           point_template="{name} {color} {style}",
                            template="{folders} {name} {extra}")
         kml.add_folder('aFolder')
         from editolido.geopoint import GeoPoint
-        kml.add_point('aFolder', GeoPoint((0, 0), name="P1"), color="blouge")
+        kml.add_point('aFolder', GeoPoint((0, 0), name="P1"),
+                      color="blouge", style="#mystyle")
         self.assertEqual(kml.render(extra="what else ?",
                                     name='no name',
                                     aFolder_color="white"),
-                         'aFolder 1 P1 blouge no name what else ?')
+                         'aFolder 1 P1 blouge #mystyle no name what else ?')
 
     def test_render_folder(self):
         kml = KMLGenerator(folder_template="{name} {open} {content}",
-                           point_template="{name} {color}")
+                           point_template="{name} {color} {style}")
         kml.add_folder('aFolder')
         from editolido.geopoint import GeoPoint
-        kml.add_point('aFolder', GeoPoint((0, 0), name="P1"), color="blouge")
-        self.assertEqual(kml.render_folder('aFolder'), 'aFolder 1 P1 blouge')
+        kml.add_point('aFolder', GeoPoint((0, 0), name="P1"),
+                      color="blouge", style='#mystyle')
+        self.assertEqual(kml.render_folder('aFolder'),
+                         'aFolder 1 P1 blouge #mystyle')
 
     def test_render_folders(self):
         kml = KMLGenerator(folder_template="{name} {open} {content}",
-                           point_template="{name} {color}")
-        kml.add_folders('aFolder', 'another')
+                           point_template="{name} {color} {style}")
+        kml.add_folders('aFolder', ('another', PIN_RED))
         from editolido.geopoint import GeoPoint
-        kml.add_point('aFolder', GeoPoint((0, 0), name="P1"), color="blouge")
+        kml.add_point('aFolder', GeoPoint((0, 0), name="P1"),
+                      color="blouge", style='#mystyle')
         kml.add_point('another', GeoPoint((0, 0), name="P2"), color="red")
         self.assertEqual(kml.render_folders(),
-                         'aFolder 1 P1 blouge\nanother 1 P2 red')
+                         'aFolder 1 P1 blouge #mystyle\n'
+                         'another 1 P2 red #placemark-red')
 
     def test_as_kml_line(self):
         kml = KMLGenerator(
