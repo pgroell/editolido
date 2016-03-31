@@ -233,7 +233,7 @@ def copy_lido_route(action_in, params):
     """
     from editolido.ofp import OFP
     import clipboard  # EDITORIAL Module
-    import console
+    import console  # EDITORIAL Module
 
     if params['Copier']:
         ofp = OFP(action_in)

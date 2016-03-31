@@ -88,6 +88,15 @@ def mock_dialogs(request):
 
 
 @pytest.fixture()
+def mock_clipboard(request):
+    clipboard = Mock()
+    patcher = patch.dict(sys.modules, clipboard=clipboard)
+    patcher.start()
+    request.addfinalizer(patcher.stop)
+    return clipboard
+
+
+@pytest.fixture()
 def mock_workflow(request):
     workflow = Mock()
     patcher = patch.dict(sys.modules, workflow=workflow)

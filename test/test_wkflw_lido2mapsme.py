@@ -6,7 +6,7 @@ import pytest
 import mock
 
 from editolido.workflows.lido2mapsme import lido2mapsme, save_kml, load_or_save, \
-    save_document
+    save_document, load_document, copy_lido_route
 import editolido.constants as constants
 
 filename = '{flight}_{departure}-{destination}_{date}_{datetime:%H:%M}z_' \
@@ -27,6 +27,17 @@ kml_params_all = {  # Pour tout afficher
 def test_lido2mapsme_output_is_kml(ofp_text):
     output = lido2mapsme(ofp_text, kml_params_all, debug=False)
     assert '<kml ' in output
+
+
+def test_load_document(mock_editor):
+    mock_editor.get_file_contents.return_value = 'content éè'.encode('utf-8')
+    out = load_document('', '')
+    assert type(out) == six.text_type
+    assert  out == 'content éè'
+    mock_editor.get_file_contents.return_value = None
+    out = load_document('', '')
+    assert type(out) == six.text_type
+    assert  out == ''
 
 @pytest.mark.usefixtures('userdir')
 def test_save_document(mock_editor, monkeypatch):
@@ -136,3 +147,17 @@ def test_load_with_backup(save, mock_editor, mock_console,
     assert mock_console.alert.called == False
     assert mock_dialogs.list_dialog.called == True
     assert mock_editor.get_file_contents.called_once_with(reldir, choice)
+
+
+@pytest.mark.parametrize("copy", [True, False])
+def test_copy_lido_route(ofp_text, copy, mock_clipboard, mock_console):
+    params = {
+        'Copier': copy,
+        'Durée': 1,
+        'Notification': 'notification'
+    }
+    out = copy_lido_route(ofp_text, params)
+    assert out == ofp_text
+    if copy:
+        assert mock_clipboard.set.called
+        assert mock_console.hud_alert.called

@@ -101,7 +101,7 @@ class TestOFP(TestCase):
     @patch_object(OFP, 'log_error')
     def test_missing_wpt_coordinates(self, logger):
         ofp = OFP('blabla blabla')
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(KeyboardInterrupt):
             list(ofp.wpt_coordinates)
         logger.assert_called_with('WPT COORDINATES not found')
 
