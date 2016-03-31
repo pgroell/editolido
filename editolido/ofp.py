@@ -212,7 +212,8 @@ class OFP(object):
                     label
                 )
                 if m:
-                    yield GeoPoint(label, normalizer=arinc_normalizer)
+                    yield GeoPoint(label, normalizer=arinc_normalizer,
+                                   name=label)
                 elif label_dict and label in label_dict:
                     yield label_dict[label]
 
