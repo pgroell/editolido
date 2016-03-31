@@ -50,6 +50,15 @@ Lido2Gramet+ s'utilise comme Lido2Mapsme+. Pour "Revoir Gramet", soit on double 
 
 Changements:
 ------------
+##v1.1.0
+  - **Mise à jour requise des workflows** [Lido2Mapsme+ pour Editorial](http://www.editorial-workflows.com/workflow/5800601703153664/o7BioyJJW8o#) et [Lido2Gramet+ pour Editorial](http://www.editorial-workflows.com/workflow/5833750260744192/T_q3eg1pbg8), pensez à noter vos paramétrages si besoin.
+  - Lido2Mapsme+ se recentre sur la cartograhie en mode déconnecté, donc plus de route Ogimet.
+  - Lido2Gramet+ nécessitant déjà d'être connecté pour récupérer le Gramet, il récupère aussi les NOOA SIGMETs (paramétrable).
+  - En sortie Lido2Gramet+ génère un KML, il est donc proposé par Workflow d'ouvrir ce dernier dans Mapsme, mais il est toujours possible de juste afficher l'image du Gramet en désactivant les SIGMETs et Ogimet.
+  - La consultation des KML sous Google Earth respecte les choix de couleurs et de PINs, l'épaisseur des lignes a été augmentée à (width=6).
+  
+  *Rq: Workflow a un bug lorsque le clipboard est vide et Lido2Gramet+ se bloque. En attendant la mise à jour de l'app Workflow, il est recommandé de lancer Lido2Mapsme+ en premier, vous aurez ainsi la route mPilot dans le clipboard.*
+  
 ##v1.0.6
  - KML renders nicely in Google Earth
 
