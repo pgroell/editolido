@@ -210,3 +210,35 @@ def save_kml(content, save=None, reldir=None, filename=None, workflow_in=None):
                 filename = '_ofp_non_reconnu_.kml'
             save_document(content, reldir, filename)
     return content
+
+
+def copy_lido_route(action_in, params):
+    """
+    Copy the Lido route into the clipboard
+    :param action_in: the input passed to the action
+    :param params: the workflow parameters for the action
+
+    Usage from Editorial is:
+
+    # -*- coding: utf-8 -*-
+    from __future__ import unicode_literals
+    import workflow
+    from editolido.workflows.lido2mapsme import copy_lido_route
+
+
+    params = workflow.get_parameters()
+    action_in = workflow.get_input()
+    workflow.set_output(copy_lido_route(action_in, params))
+
+    """
+    from editolido.ofp import OFP
+    import clipboard  # EDITORIAL Module
+    import console
+
+    if params['Copier']:
+        ofp = OFP(action_in)
+        clipboard.set(' '.join(ofp.lido_route))
+        if params['Durée'] > 0 and params['Notification']:
+            console.hud_alert(params['Notification'], 'success',
+                              float(params['Durée']))
+    return action_in
