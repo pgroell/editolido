@@ -66,6 +66,13 @@ class KMLGenerator(object):
         return text
 
     def add_folder(self, name, pin=PIN_NONE):
+        """
+        Add a folder and a style to the kml
+        If there is no pin you must specify style for points added into
+        that folder
+        :param name: the folder name
+        :param pin: a default pin for points in the folder
+        """
         self.folders[name] = []
         style = self.style_template.format(name)
         if pin != PIN_NONE:
@@ -125,6 +132,9 @@ class KMLGenerator(object):
         :param route: Route
         :param excluded: list of GeoPoint to exclude from rendering
         :param kwargs: optional args passed to the renderer
+
+        If folder does not have a pin set, points must define style kwargs
+        otherwise nothing is added
         """
         self._update_kwargs(folder, kwargs)
         excluded = excluded or []
@@ -138,6 +148,9 @@ class KMLGenerator(object):
         :param folder: folder name
         :param geopoint: GeoPoint
         :param kwargs: optional args passed to the renderer
+
+        If folder does not have a pin set, point must define style kwargs
+        otherwise nothing is added
         """
         kwargs.setdefault('style', self.folder_styles[folder])
         self._update_kwargs(folder, kwargs)
