@@ -90,7 +90,7 @@ Après le lancement du script, il va y avoir un ballet entre les applications WO
 
 <img src="img/image9.png" width="312" height="76" />
 
-Vous n’aurez plus qu’à la copier dans lapartie Load Route de LIDO mPilot.
+Vous n’aurez plus qu’à la coller dans la partie Load Route de LIDO mPilot.
 
 Une fois le workflow terminé, une fenêtre s'afffiche proposant d'ouvrir le fichier KML avec l'application de son choix. On choisit Maps.me bien entendu :
 
