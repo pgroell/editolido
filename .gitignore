@@ -1,0 +1,9 @@
+.cache
+.idea
+.tox
+.pycharmrc
+MANIFEST
+.coveralls.yml
+.coverage
+.DS_Store
+tuto/.DS_Store
