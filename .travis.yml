@@ -1,3 +1,8 @@
+# whitelist
+branches:
+  only:
+    - gh-pages
+
 before_install:
   - mkdir $HOME/pandoc
   - curl -O https://s3.amazonaws.com/rstudio-buildtools/pandoc-1.12.3.zip
