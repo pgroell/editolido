@@ -19,11 +19,14 @@ before_install:
   - ls -al ${PWD}/wkhtmltopdf/wkhtmltox/bin/
   - chmod u+x ./travis/build.sh
   - chmod u+x ./travis/publish.sh
+  - export GIT_COMMIT_MSG="$(git log --format=%B --no-merges -n 1)"
+  - "export GIT_MODIFIED_FILES=\"$(git log --name-only --pretty=format: gh-pages -n 1)\""
+  - echo "$GIT_MODIFIED_FILES" | grep '\[tuto/tuto.md\]'; export TUTO_PUBLISH_PDF=$?; true
 
 script: "./travis/build.sh"
 
 after_success:
-  - "./travis/publish.sh"
+  - if [ $TUTO_PUBLISH_PDF -eq 0 ]; then ./travis/publish.sh; fi
 
 env:
   global:
