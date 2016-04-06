@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/flyingeek/editolido.svg?branch=master)](https://travis-ci.org/flyingeek/editolido)
 
-Je sais je dois faire la doc... mais @niklas777 a fait un [super Tutorial](https://flyingeek.github.io/editolido/tuto/tuto.html) disponible aussi en [PDF](https://flyingeek.github.io/editolido/tuto/tuto.pdf)
+Je sais je dois faire la doc... mais @niklas777 a fait un [super Tutorial](https://flyingeek.github.io/editolido/tuto/tuto.html) disponible aussi en [PDF](https://flyingeek.github.io/editolido/tuto/dist/gh-pages-tuto.pdf)
 
 Installation:
 -------------
