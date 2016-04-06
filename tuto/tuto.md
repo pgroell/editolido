@@ -232,7 +232,7 @@ puis validez en appuyant sur OK en haut à droite
 
 Vous obtenez alors dans le centre de notifications des raccourcis vers certains workflows. Vous pouvez choisir lesquels afficher en appuyant sur Manage workflows
 
-<img src="img/image32.png" width="468" height="236" />
+![](img/image32.png)
 
 Vous pouvez alors sélectionner les workflows à afficher dans le centre de notifications. Par exemple, sélectionner uniquement « Revoir GRAMET ».
 
