@@ -9,7 +9,7 @@ pwd
 ls -al ${PWD}/wkhtmltopdf/wkhtmltox/bin/
 cd ./tuto
 echo $PATH
-pandoc --from=markdown+yaml_metadata_block -t html5 --template=../pandoc/pandoc_tpl.html -s tuto.md -o ${TRAVIS_BUILD_DIR}/tuto.pdf
+pandoc --from=markdown+yaml_metadata_block -t html5 --template=../pandoc/pandoc_tpl.html -s tuto.md -o ${TRAVIS_BUILD_DIR}/tuto.html
 
 echo '######################################'
 echo '#                Build               #'
