@@ -13,7 +13,6 @@ echo '---- Switch to gh-pages branch ----'
 git checkout gh-pages
 
 echo '---- Copy latest PDF build ----'
-ls -al ${TRAVIS_BUILD_DIR}/tuto/
 mkdir -p dist
 cp $RESULT_PDF_PATH ./dist/${TRAVIS_BRANCH}-tuto.pdf
 
@@ -24,7 +23,7 @@ git config --global push.default matching
 
 echo '---- Add files, commit and push ----'
 git add -A
-git commit -m "Adding latest build of pdf to gh-pages"
+git commit -m "Adding latest build of pdf to gh-pages [ci skip]"
 git push https://${GH_OAUTH_TOKEN}@github.com/${GH_USER_NAME}/${GH_PROJECT_NAME} 2>&1
 
 echo '######################################'
