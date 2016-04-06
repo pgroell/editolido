@@ -13,8 +13,9 @@ echo '---- Switch to gh-pages branch ----'
 git checkout gh-pages
 
 echo '---- Copy latest PDF build ----'
+ls -al ${TRAVIS_BUILD_DIR}/tuto/
 mkdir -p dist
-cp $RESULT_PDF_PATH ./dist/${TRAVIS_BRANCH}-thesis.pdf
+cp $RESULT_PDF_PATH ./dist/${TRAVIS_BRANCH}-tuto.pdf
 
 echo '---- Set git settings ----'
 git config --global user.name $GIT_AUTHOR_NAME
