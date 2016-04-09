@@ -137,6 +137,8 @@ class TestOFP(TestCase):
                 GeoPoint((38.000000, -50.000000)),
                 GeoPoint((33.000000, -60.000000))])
         )
+        for p in tracks[0]:
+            self.assertTrue(p.name)
         self.assertTrue(tracks[0].name.endswith('A'))
         self.assertTrue(tracks[-1].name.endswith('J'))
 
