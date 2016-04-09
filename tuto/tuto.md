@@ -3,7 +3,7 @@ title: Tutorial Lido2Mapsme+ et Lido2Gramet+
 layout: default
 ---
 
-# Tutorial Lido2Mapsme+ et Lido2Gramet+
+# Tutorial Lido2Mapsme+ et Lido2Gramet+ #
 
 ***À quoi sert ce tuto ?***
 
@@ -13,8 +13,7 @@ layout: default
 
 *Suivez le [*groupe Yammer Maps.me*](https://www.yammer.com/airfranceklm.com/#/threads/inGroup?type=in_group&feedId=5475890) pour les updates.*
 
-Démarrage et installation
-=========================
+## Démarrage et installation ##
 
 Trois applications sont nécessaires :
 
@@ -44,13 +43,13 @@ Voici les liens vers les différents scripts (ou *workflow*) nécessaires :
 
 Pour utiliser ces liens, ouvrez-les sur l’iPad où vous disposez des applications WORKFLOW et Editorial. Si jamais les liens ne fonctionnent pas correctement, ouvrez ce fichier pdf dans iBooks (icône exporter qui a cette forme-là en général <img src="img/image4.png" width="19" height="24" />).
 
-Lancement des Workflows
-=======================
+## Lancement des Workflows ##
 
 Il faut obtenir le pdf du dossier de vol sur son iPad (celui reçu dans Mail ou PilotMission par exemple, ou bien encore en le récupérant sur [*http://s4a.airfrance.fr*](http://s4a.airfrance.fr)).
 
-<img src="img/image5.png" width="335" height="252" />Une fois qu'on l'a ouvert, faire "Exporter" <img src="img/image4.png" width="19" height="24" /> puis choisir "Run Workflow" et choisir le workflow désiré selon ce que l'on veut utiliser (les différents workflows sont expliqués plus loin dans ce document).
+Une fois qu'on l'a ouvert, faire "Exporter" <img src="img/image4.png" width="19" height="24" /> puis choisir "Run Workflow" et choisir le workflow désiré selon ce que l'on veut utiliser (les différents workflows sont expliqués plus loin dans ce document).
 
+<img src="img/image5.png" width="335" height="252" />
 Si jamais vous n’avez pas l’icône "Run Workflow", deux possibilités : vous n’avez pas installé l’application… ou bien il faut activer son affichage via le bouton More, on tombe alors sur la fenêtre suivante :
 
 <img src="img/image6.jpg" width="336" height="147" />
@@ -65,11 +64,9 @@ On arrive alors au choix des workflows :
 
 Les chapitres suivants détaillent leurs fonctionnalités et leur utilisation.
 
-Workflow Lido2Mapsme+
-=====================
+## Workflow Lido2Mapsme+ ##
 
-Finalité du workflow
---------------------
+### Finalité du workflow ###
 
 Ce script ne nécessite pas de connexion internet sauf pour son premier lancement et lors des mises à jour), il doit être lancé depuis la fonction exporter <img src="img/image4.png" width="19" height="24" /> du pdf de l’OFP et réalise les choses suivantes :
 
@@ -79,8 +76,7 @@ Ce script ne nécessite pas de connexion internet sauf pour son premier lancemen
 
 -   il crée un fichier KML qui va pouvoir être ouvert dans Maps.me. Ce fichier contient la route et le dégagement, les tracks dans le cas d’une traversée océanique et l’orthodromie du vol. Ce fichier KML est personnalisable, on en reparle [*plus loin*](#personnaliser-son-fichier-kml).
 
-Utilisation du workflow
------------------------
+### Utilisation du workflow ###
 
 Après le lancement du script, il va y avoir un ballet entre les applications WORKFLOW et Editorial. À la première utilisation ou lors d’une mise à jour des workflows, Editorial va télécharger les données nécessaires (internet requis pour cela, mais une fois téléchargées, les données sont utilisables hors ligne) et affichera une bulle vous informant que l’opération a été effectuée :
 
@@ -98,8 +94,7 @@ Une fois le workflow terminé, une fenêtre s'afffiche proposant d'ouvrir le fic
 
 *Astuce : dans ce popup qui s’ouvre, vous pouvez classer les applications dans l’ordre que vous souhaitez en appuyant longtemps dessus*
 
-Personnaliser son fichier KML
------------------------------
+### Personnaliser son fichier KML ###
 
 Par défaut des couleurs ont été choisies pour les épingles, et le KML affiche un certain nombre d’éléments (route OFP, dégagement, NAT, orthodromie).
 
@@ -125,11 +120,9 @@ Validez en appuyant sur Done en haut à droite :
 
 <img src="img/image13a.png" width="697" height="62" />
 
-Workflow Lido2Gramet+
-=====================
+## Workflow Lido2Gramet+ ##
 
-Finalité du workflow
---------------------
+### Finalité du workflow ###
 
 Ce script nécessite d’être connecté à internet, il doit être lancé depuis la fonction exporter <img src="img/image4.png" width="19" height="24" /> du pdf de l’OFP et réalise les choses suivantes :
 
@@ -143,8 +136,7 @@ Ce script nécessite d’être connecté à internet, il doit être lancé depui
 
 -   il récupère les Sigmets valides à l’instant t et il ajoute au fichier KML contenant la route Ogimet (celui du premier point de cette liste) les zones dessinées des Sigmets avec leurs descriptions.
 
-Utilisation du workflow
------------------------
+### Utilisation du workflow ###
 
 <img src="img/image15.png" width="46" height="58" />Il faut d’abord créer un répertoire spécifique dans l’application Photos de l’iPad. Pour ce faire, ouvrez cette application, appuyez sur Albums (en bas dans le menu) :
 
@@ -176,8 +168,7 @@ Ce fichier KML ouvert dans Maps.me contient les zones de Sigmet.
 
 Le workflow a également copié le fichier image Ogimet dans le répertoire Gramet de l’application Photos. Vous pouvez y accéder en ouvrant l’application Photos et en allant dans l’album Gramet, ou alors on peut configurer un petit raccourci, c’est l’objet du paragraphe [*Workflow Revoir GRAMET*](#finalité-du-workflow).
 
-Personnaliser son fichier KML
------------------------------
+### Personnaliser son fichier KML ###
 
 Par défaut des couleurs ont été choisies pour les épingles Sigmet, et le KML affiche un certain nombre d’éléments (route Ogimet, Sigmets).
 
@@ -201,16 +192,13 @@ Validez en appuyant sur Done en haut à droite :
 
 <img src="img/image24.png" width="697" height="60" />
 
-Workflow Revoir GRAMET
-======================
+## Workflow Revoir GRAMET ##
 
-Finalité du workflow
---------------------
+### Finalité du workflow ###
 
 Créer un raccourci pour consulter rapidement le Gramet que l’on a téléchargé avant le vol.
 
-Utilisation du workflow
------------------------
+### Utilisation du workflow ###
 
 Pour commencer, rendez-vous dans l’application WORKFLOW, puis appuyez sur le workflow « Revoir GRAMET »
 
@@ -244,7 +232,7 @@ puis validez en appuyant sur OK en haut à droite
 
 Vous obtenez alors dans le centre de notifications des raccourcis vers certains workflows. Vous pouvez choisir lesquels afficher en appuyant sur Manage workflows
 
-<img src="img/image32.png" width="468" height="236" />
+![](img/image32.png)
 
 Vous pouvez alors sélectionner les workflows à afficher dans le centre de notifications. Par exemple, sélectionner uniquement « Revoir GRAMET ».
 
@@ -252,8 +240,7 @@ Vous pouvez alors sélectionner les workflows à afficher dans le centre de noti
 
 Vous pouvez maintenant revoir le dernier Gramet enregistré en deux actions via le centre de notifications !
 
-Application Maps.me
-===================
+## Application Maps.me ##
 
 Enfin, l'application Maps.me n'est intéressante que si on l'enrichit de fichiers kml avec les terrains qui nous intéressent. Ces fichiers kml sont regroupés dans le répertoire suivant :
 
@@ -284,4 +271,3 @@ Fichier terrains hors MANEX
 <img src="img/image38.jpg" width="323" height="323" />
 
 Détail terrain
-
